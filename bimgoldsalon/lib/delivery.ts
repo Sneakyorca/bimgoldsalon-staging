@@ -2,7 +2,7 @@ import { fromISODate, salonToday } from "@/lib/booking";
 import {
   deliveryOptions,
   type DeliveryMethodId,
-} from "@/dummydata/deliveryData";
+} from "@/lib/delivery-options.ts";
 
 export type DeliveryAvailability = Record<
   DeliveryMethodId,

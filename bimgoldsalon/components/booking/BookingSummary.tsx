@@ -3,7 +3,7 @@
 import { ArrowRight, Calendar, Clock } from "lucide-react";
 import Image from "next/image";
 import { useBooking } from "@/context/BookingContext";
-import { venue } from "@/dummydata/bookingData";
+import { venue } from "@/lib/salon";
 import {
   formatDuration,
   formatGBP,

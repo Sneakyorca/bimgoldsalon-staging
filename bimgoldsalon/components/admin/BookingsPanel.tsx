@@ -6,7 +6,7 @@ import {
   setBookingPaid,
   setBookingStatus,
 } from "@/app/admin/actions";
-import { BOOKING_STATUSES } from "@/dummydata/accountData";
+import { BOOKING_STATUSES } from "@/lib/statuses";
 import type { BookingView } from "@/lib/auth/api";
 import {
   formatDuration,

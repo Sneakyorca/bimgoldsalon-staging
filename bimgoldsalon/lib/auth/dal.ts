@@ -20,7 +20,6 @@ export const getCurrentUser = cache(async (): Promise<PublicUser | null> => {
     email: data.user.email ?? "",
     phone: profile?.phone ?? "",
     role: profile?.role === "admin" ? "admin" : "customer",
-    passwordChangedAt: 0, // legacy field from the dummy layer, removed when api.ts is retired
   };
 });
 

@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { setOrderPayment, setOrderStatus } from "@/app/admin/actions";
-import { ORDER_STATUSES, PAYMENT_STATUSES } from "@/dummydata/accountData";
-import { deliveryOptions } from "@/dummydata/deliveryData";
+import { ORDER_STATUSES, PAYMENT_STATUSES } from "@/lib/statuses";
+import { deliveryOptions } from "@/lib/delivery-options.ts";
 import type { OrderView } from "@/lib/auth/api";
 import { countryName } from "@/lib/countries";
 import { formatPrice } from "@/lib/format";

@@ -25,6 +25,5 @@ export async function listCustomers(): Promise<PublicUser[]> {
     email: r.email ?? "",
     phone: r.phone ?? "",
     role: "customer" as const,
-    passwordChangedAt: 0, // legacy field from the dummy layer
   }));
 }

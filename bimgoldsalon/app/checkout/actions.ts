@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createOrderRecord } from "@/Data/orders";
-import { deliveryOptions } from "@/dummydata/deliveryData";
+import { deliveryOptions } from "@/lib/delivery-options.ts";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { SHIPPING_COUNTRY_CODES } from "@/lib/countries";
 import { deliveryAvailability } from "@/lib/delivery";

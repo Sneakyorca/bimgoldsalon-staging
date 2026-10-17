@@ -9,7 +9,7 @@ import { placeOrderAction } from "@/app/checkout/actions";
 import CountrySelect from "@/components/common/CountrySelect";
 import PhoneInput from "@/components/common/PhoneInput";
 import { useCart } from "@/context/CartContext";
-import { deliveryOptions } from "@/dummydata/deliveryData";
+import { deliveryOptions } from "@/lib/delivery-options.ts";
 import { SHIPPING_COUNTRY_CODES } from "@/lib/countries";
 import {
   deliveryAvailability,

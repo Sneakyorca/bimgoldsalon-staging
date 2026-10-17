@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import LegalPage from "@/components/legal/LegalPage";
-import { policy } from "@/dummydata/bookingData";
+import { policy } from "@/lib/salon";
 import { BUSINESS } from "@/lib/business";
 
 export const metadata: Metadata = { title: "Terms & Conditions | BIM-GOLD" };

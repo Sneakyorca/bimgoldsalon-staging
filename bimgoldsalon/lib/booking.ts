@@ -3,7 +3,7 @@ import {
   MIN_LEAD_MIN,
   openingHours,
   SLOT_STEP,
-} from "@/dummydata/bookingData";
+} from "@/lib/salon";
 import type { Service } from "@/lib/services";
 
 const pad = (n: number) => String(n).padStart(2, "0");

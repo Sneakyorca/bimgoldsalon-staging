@@ -1,5 +1,5 @@
 import "server-only";
-import type { OrderStatus, PaymentStatus } from "@/dummydata/accountData";
+import type { OrderStatus, PaymentStatus } from "@/lib/statuses";
 import type { OrderView } from "@/lib/auth/api";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";

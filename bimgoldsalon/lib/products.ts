@@ -31,8 +31,7 @@ export type AdminProduct = {
   images: string[];
   extraInfo: Record<string, string>;
 };
-
-export type ProductInput = Omit<AdminProduct, "id">;
+export type ProductInput = Omit<AdminProduct, "id" | "salePrice">;
 
 /** Shown when a product has no photo yet (file in /public/images) */
 export const NO_IMAGE = "/images/no-image.svg";

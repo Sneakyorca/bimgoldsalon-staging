@@ -1,5 +1,5 @@
 import "server-only";
-import type { BookingStatus } from "@/dummydata/accountData";
+import type { BookingStatus } from "@/lib/statuses";
 import type { BookingView } from "@/lib/auth/api";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";

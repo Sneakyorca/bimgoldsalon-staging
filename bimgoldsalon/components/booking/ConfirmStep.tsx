@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import TermsConsent from "@/components/legal/TermsConsent";
 import { useBooking } from "@/context/BookingContext";
-import { policy } from "@/dummydata/bookingData";
+import { policy } from "@/lib/salon";
 import BookingShell from "./BookingShell";
 import BookingSummary from "./BookingSummary";
 
