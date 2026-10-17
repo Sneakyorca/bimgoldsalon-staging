@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Logo from "./Logo";
 import Link from "next/link";
 import { User } from "lucide-react";
 import CartMenu from "./CartMenu";
@@ -20,14 +20,7 @@ const Navbar = () => {
           className={`mx-auto flex w-full max-w-360 items-center justify-between gap-3 px-5 md:px-6 lg:gap-4 lg:px-12 ${heights}`}
         >
           <Link href="/" aria-label="Bimgold home" className="shrink-0">
-            <Image
-              className="h-12.25 w-11.25 md:h-12 md:w-auto lg:h-18 lg:w-32.25"
-              src="/logo.png"
-              alt="Bimgold logo"
-              width={48}
-              height={46}
-              priority
-            />
+            <Logo priority />
           </Link>
 
           <ul className="hidden items-center gap-5 text-[14px] font-medium uppercase md:flex lg:gap-10 lg:text-[16px]">
@@ -43,19 +36,18 @@ const Navbar = () => {
             ))}
           </ul>
 
-          <div className="hidden shrink-0 items-center gap-3 md:flex lg:gap-5">
-            <Link href="/account" aria-label="Account">
+          <div className="flex shrink-0 items-center gap-3 lg:gap-5">
+            <Link href="/account" aria-label="Account" className="block">
               <User className="size-5 fill-current lg:size-6.25" />
             </Link>
 
-            <CartMenu className={outlined} />
-
-            <Link href="/booking" className={outlined}>
+            <Link href="/booking" className={`${outlined} hidden md:flex`}>
               Book now
             </Link>
-          </div>
 
-          <MobileSideBar className="md:hidden" />
+            <CartMenu className={outlined} />
+            <MobileSideBar className="md:hidden" />
+          </div>
         </nav>
       </header>
       <div aria-hidden="true" className={heights} />

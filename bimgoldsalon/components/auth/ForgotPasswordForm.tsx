@@ -11,7 +11,6 @@ import {
   PrimaryButton,
   TextField,
   titleClass,
-  logSubmit,
   type SubmitHandler,
 } from "./fields";
 
@@ -36,7 +35,6 @@ const ForgotPasswordForm = ({
 
   const submit = handleSubmit(async (values) => {
     try {
-      logSubmit("Forgot password", values);
       await onSubmit?.(values);
       setSentTo(values.email);
     } catch (err) {

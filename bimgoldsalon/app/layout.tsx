@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import Navbar from "@/components/site/Navbar";
 import Footer from "@/components/site/Footer";
 import { CartProvider } from "@/context/CartContext";
+import { BookingProvider } from "@/context/BookingContext";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const jakarta = Plus_Jakarta_Sans({
@@ -20,6 +21,11 @@ const jakarta = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "BIM - GOLD HAIR & BEAUTY AND SALON",
   description: "Crowning You With Confidence And Beauty",
+  icons: {
+    icon: "/favicon/favicon.ico",
+    apple: "/favicon/apple-touch-icon.png",
+  },
+  manifest: "/favicon/site.webmanifest",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -30,9 +36,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col">
         <CartProvider>
-          <Navbar />
-          {children}
-          <Footer />
+          <BookingProvider>
+            <Navbar />
+            {children}
+            <Footer />
+          </BookingProvider>
         </CartProvider>
       </body>
     </html>

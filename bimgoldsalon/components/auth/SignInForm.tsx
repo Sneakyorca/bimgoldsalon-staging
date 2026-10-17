@@ -8,7 +8,6 @@ import {
   PasswordField,
   PrimaryButton,
   TextField,
-  logSubmit,
   subtitleClass,
   titleClass,
   type SubmitHandler,
@@ -31,7 +30,6 @@ const SignInForm = ({
 
   const submit = handleSubmit(async (values) => {
     try {
-      logSubmit("Sign in", values);
       await onSubmit?.(values);
     } catch (err) {
       setError("root.server", {

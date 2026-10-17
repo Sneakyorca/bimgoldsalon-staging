@@ -1,7 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
+import TermsConsent from "@/components/legal/TermsConsent";
 import { signUpSchema, type SignUpValues } from "@/lib/schemas/auth";
 import {
   OrDivider,
@@ -12,7 +13,6 @@ import {
   TextField,
   subtitleClass,
   titleClass,
-  logSubmit,
   type SubmitHandler,
 } from "./fields";
 
@@ -23,6 +23,7 @@ const SignUpForm = ({
 }) => {
   const {
     register,
+    control,
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
@@ -39,7 +40,6 @@ const SignUpForm = ({
 
   const submit = handleSubmit(async (values) => {
     try {
-      logSubmit("Sign up", values);
       await onSubmit?.(values);
     } catch (err) {
       setError("root.server", {
@@ -64,7 +64,6 @@ const SignUpForm = ({
       <p className={subtitleClass}>Sign up with email &amp; password</p>
       {/* <SocialButtons mode="signup" /> */}
       {/* <OrDivider /> */}
-
       <TextField
         label="Full name"
         autoComplete="name"
@@ -78,7 +77,18 @@ const SignUpForm = ({
         error={errors.email?.message}
         {...register("email")}
       />
-      <PhoneField error={errors.phone?.message} {...register("phone")} />
+      <Controller
+        name="phone"
+        control={control}
+        render={({ field }) => (
+          <PhoneField
+            value={field.value}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+            error={errors.phone?.message}
+          />
+        )}
+      />
       <PasswordField
         label="Password (8+ characters)"
         autoComplete="new-password"
@@ -91,12 +101,12 @@ const SignUpForm = ({
         error={errors.confirmPassword?.message}
         {...register("confirmPassword")}
       />
-
       {errors.root?.server && (
         <p role="alert" className="text-[14px] text-red-600">
           {errors.root.server.message}
         </p>
-      )}
+      )}{" "}
+      <TermsConsent action="creating an account" />
       <PrimaryButton loading={isSubmitting}>Sign up</PrimaryButton>
     </form>
   );

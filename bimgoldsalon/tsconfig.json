@@ -28,7 +28,9 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    "**/*.mts",
+    "Data/profile.js",
+    "Data/profile.js"
   ],
   "exclude": ["node_modules"]
 }

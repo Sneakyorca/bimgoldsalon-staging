@@ -1,5 +1,5 @@
 import AuthCardLayout from "@/components/auth/AuthCardLayout";
-import ForgotPasswordForm from "@/components/auth/ForgotPasswordForm";
+import ForgotPasswordClient from "@/components/auth/ForgotPasswordClient";
 
 const ForgotPasswordPage = () => (
   <AuthCardLayout
@@ -7,7 +7,7 @@ const ForgotPasswordPage = () => (
     subheading="We will help you get back into your account"
     backTo={{ label: "Sign In", href: "/auth" }}
   >
-    <ForgotPasswordForm />
+    <ForgotPasswordClient />
   </AuthCardLayout>
 );
 

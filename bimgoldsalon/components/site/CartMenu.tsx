@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/lib/format";
+import CartBadge from "./CartBadge";
 
 /**
  * Navbar cart button: shows the item count and opens a mini-cart dropdown.
@@ -62,14 +63,10 @@ const CartMenu = ({ className = "" }: { className?: string }) => {
       >
         <ShoppingCart className="size-4 lg:hidden" />
         <span className="hidden lg:inline">Cart</span>
-        {count > 0 && (
-          <span
-            aria-hidden="true"
-            className="absolute -right-2 -top-2 grid h-5 min-w-5 place-items-center rounded-full bg-red-600 px-1 text-[11px] font-bold leading-none text-white"
-          >
-            {count > 99 ? "99+" : count}
-          </span>
-        )}
+        <CartBadge
+          count={count}
+          className="absolute -right-2 -top-2 h-5 min-w-5 text-[11px]"
+        />
       </button>
 
       {open && (

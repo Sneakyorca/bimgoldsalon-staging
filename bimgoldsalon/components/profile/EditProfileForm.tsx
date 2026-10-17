@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
+import { toE164 } from "@/lib/countries";
 import { editProfileSchema, type EditProfileValues } from "@/lib/schemas/auth";
 import {
   PasswordField,
@@ -11,8 +12,6 @@ import {
   TextField,
   subtitleClass,
   titleClass,
-  logSubmit,
-  type SubmitHandler,
 } from "../auth/fields";
 
 type User = { name: string; email: string; phone?: string };
@@ -22,13 +21,16 @@ const EditProfileForm = ({
   onSubmit,
 }: {
   user: User;
-  onSubmit?: SubmitHandler<EditProfileValues>;
+  onSubmit?: (
+    values: EditProfileValues,
+  ) => Promise<string | void> | string | void;
 }) => {
-  const [saved, setSaved] = useState(false);
+  const [notice, setNotice] = useState("");
   const [pwOpen, setPwOpen] = useState(false);
 
   const {
     register,
+    control,
     handleSubmit,
     setError,
     resetField,
@@ -38,7 +40,7 @@ const EditProfileForm = ({
     defaultValues: {
       name: user.name,
       email: user.email,
-      phone: user.phone ?? "",
+      phone: toE164(user.phone ?? ""),
       currentPassword: "",
       newPassword: "",
       confirmNewPassword: "",
@@ -47,11 +49,10 @@ const EditProfileForm = ({
 
   const submit = handleSubmit(
     async (values) => {
-      setSaved(false);
+      setNotice("");
       try {
-        logSubmit("Edit profile", values);
-        await onSubmit?.(values);
-        setSaved(true);
+        const message = await onSubmit?.(values);
+        setNotice(message || "Profile updated.");
         resetField("currentPassword");
         resetField("newPassword");
         resetField("confirmNewPassword");
@@ -66,7 +67,7 @@ const EditProfileForm = ({
     },
     // errors inside a closed <details> would be invisible, so open it
     (errs) => {
-      setSaved(false);
+      setNotice("");
       if (errs.currentPassword || errs.newPassword || errs.confirmNewPassword)
         setPwOpen(true);
     },
@@ -92,7 +93,18 @@ const EditProfileForm = ({
         error={errors.email?.message}
         {...register("email")}
       />
-      <PhoneField error={errors.phone?.message} {...register("phone")} />
+      <Controller
+        name="phone"
+        control={control}
+        render={({ field }) => (
+          <PhoneField
+            value={field.value}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+            error={errors.phone?.message}
+          />
+        )}
+      />
 
       <details
         open={pwOpen}
@@ -110,11 +122,15 @@ const EditProfileForm = ({
             {...register("currentPassword")}
           />
           <PasswordField
-            label="New password (8+ characters)"
+            label="New password"
             autoComplete="new-password"
             error={errors.newPassword?.message}
             {...register("newPassword")}
           />
+          <p className="text-[13px] text-gray-500">
+            Use 8+ characters with upper and lower case letters, a number and a
+            symbol.
+          </p>
           <PasswordField
             label="Confirm new password"
             autoComplete="new-password"
@@ -129,9 +145,9 @@ const EditProfileForm = ({
           {errors.root.server.message}
         </p>
       )}
-      {saved && (
+      {notice && (
         <p role="status" className="text-[14px] text-green-700 md:text-center">
-          Profile updated.
+          {notice}
         </p>
       )}
       <PrimaryButton loading={isSubmitting}>Save changes</PrimaryButton>

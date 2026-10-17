@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MapPin, Phone } from "lucide-react";
 import SocialLinks from "@/components/home/Social-Links";
+import { BUSINESS } from "@/lib/business";
 
 const FooterCol = ({
   title,
@@ -43,10 +44,10 @@ const Footer = () => (
           <span className="font-semibold">Sun:</span> Closed
         </p>
         <Link
-          href="tel:+44 7919 077094"
+          href="tel:+447353244480"
           className="mt-5 flex items-center gap-3 text-[16px] md:text-[14px] lg:text-[16px]"
         >
-          <Phone className="size-4 shrink-0" /> +44 7353244480
+          <Phone className="size-4 shrink-0" /> +44 7353 244480
         </Link>
         <p className="mt-3 flex items-start gap-3 text-[16px] md:text-[14px] lg:text-[16px]">
           <MapPin className="mt-0.5 size-4 shrink-0" />3 Market Walk,
@@ -58,20 +59,37 @@ const Footer = () => (
       <FooterCol
         title="Information"
         links={[
-          ["Service Menu", "/services"],
-          ["Privacy & Policy", "/privacy"],
+          ["Service Menu", "/booking"],
+          ["Terms & Conditions", "/terms"],
+          ["Privacy Policy", "/privacy"],
         ]}
       />
       <FooterCol
         title="Useful Links"
         links={[
-          ["Shops", "/shop"],
+          ["Shop", "/product"],
           ["Training", "/training"],
           ["Book Appointment", "/booking"],
         ]}
       />
       <div className="mt-1 h-px w-72 md:hidden bg-white/60" />
       <SocialLinks className="mt-1 [&_a]:bg-white flex md:hidden" />
+    </div>
+
+    <div className="border-t border-white/20">
+      <div className="mx-auto flex w-full max-w-360 flex-col gap-3 px-5 py-5 text-[14px] md:flex-row md:items-center md:justify-between md:px-8 lg:px-12">
+        <p>
+          © {new Date().getFullYear()} {BUSINESS.name}. All rights reserved.
+        </p>
+        <nav aria-label="Legal" className="flex gap-5">
+          <Link href="/terms" className="hover:underline">
+            Terms &amp; Conditions
+          </Link>
+          <Link href="/privacy" className="hover:underline">
+            Privacy Policy
+          </Link>
+        </nav>
+      </div>
     </div>
   </footer>
 );

@@ -6,14 +6,32 @@ const email = z
   .min(1, "Enter your email")
   .email("Enter a valid email address");
 
-// Optional: empty is fine, otherwise digits/spaces/dashes with an optional leading +
-const phone = z
+// Phone numbers are saved with their country code, like +447123456789
+export const E164 = /^\+[1-9]\d{6,14}$/;
+
+// Optional: empty is fine
+export const optionalPhone = z
   .string()
   .trim()
-  .regex(/^\+?[0-9\s-]{7,20}$/, "Enter a valid phone number")
+  .regex(E164, "Enter a valid phone number")
   .or(z.literal(""));
 
-const newPassword = z.string().min(8, "Use at least 8 characters");
+export const requiredPhone = z
+  .string()
+  .trim()
+  .min(1, "Enter your phone number")
+  .regex(E164, "Enter a valid phone number");
+
+const phone = optionalPhone;
+// Same rules as Supabase: Authentication -> Sign In / Providers -> Email
+export const strongPassword = z
+  .string()
+  .min(8, "Use at least 8 characters")
+  .max(72, "Use 72 characters or fewer")
+  .regex(/[a-z]/, "Add a lowercase letter")
+  .regex(/[A-Z]/, "Add an uppercase letter")
+  .regex(/[0-9]/, "Add a number")
+  .regex(/[!@#$%^&*()_+\-=[\]{};':"\\|<>?,./`~]/, "Add a symbol, e.g. ! @ # $");
 
 export const signInSchema = z.object({
   identifier: z.string().trim().min(1, "Enter your email or phone number"),
@@ -25,7 +43,7 @@ export const signUpSchema = z
     name: z.string().trim().min(2, "Enter your full name"),
     email,
     phone,
-    password: newPassword,
+    password: strongPassword,
     confirmPassword: z.string().min(1, "Confirm your password"),
   })
   .refine((d) => d.password === d.confirmPassword, {
@@ -54,11 +72,13 @@ export const editProfileSchema = z
         message: "Enter your current password",
       });
     }
-    if (d.newPassword.length < 8) {
+    const strength = strongPassword.safeParse(d.newPassword);
+    if (!strength.success) {
       ctx.addIssue({
         code: "custom",
         path: ["newPassword"],
-        message: "Use at least 8 characters",
+        message:
+          strength.error.issues[0]?.message ?? "Choose a stronger password",
       });
     }
     if (d.newPassword !== d.confirmNewPassword) {

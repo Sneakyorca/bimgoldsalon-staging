@@ -18,10 +18,22 @@ const SocialLinks = ({ className = "" }: { className?: string }) => {
     "grid size-9 place-items-center rounded-full bg-white text-primary transition hover:opacity-80";
   return (
     <div className={`flex gap-3 ${className}`}>
-      <a href="https://instagram.com" aria-label="Instagram" className={item}>
+      <a
+        href="https://www.instagram.com/bimgoldbeautysalon?stkn=b3VhY2RzenV2MzNl"
+        aria-label="Instagram"
+        className={item}
+        target="_blank"
+        rel="noreferrer"
+      >
         <InstagramLogoIcon className="size-5.5" weight="bold" />
       </a>
-      <a href="https://tiktok.com" aria-label="TikTok" className={item}>
+      <a
+        href="https://www.tiktok.com/@bimgold_beauty_salon?_r=1&_t=ZS-9AJOnU3M9Wn"
+        aria-label="TikTok"
+        className={item}
+        target="_blank"
+        rel="noreferrer"
+      >
         <TikTok className="size-5.5" />
       </a>
       <a href="mailto:hello@bimgold.com" aria-label="Email" className={item}>

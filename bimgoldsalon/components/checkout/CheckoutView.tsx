@@ -2,10 +2,19 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import type { ReactNode } from "react";
-import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, type ReactNode } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { placeOrderAction } from "@/app/checkout/actions";
+import CountrySelect from "@/components/common/CountrySelect";
+import PhoneInput from "@/components/common/PhoneInput";
 import { useCart } from "@/context/CartContext";
 import { deliveryOptions } from "@/dummydata/deliveryData";
+import { SHIPPING_COUNTRY_CODES } from "@/lib/countries";
+import {
+  deliveryAvailability,
+  type DeliveryAvailability,
+} from "@/lib/delivery";
 import { formatPrice } from "@/lib/format";
 import { checkoutSchema, type CheckoutValues } from "@/lib/schemas/checkout";
 import CheckoutSteps from "../site/CheckoutSteps";
@@ -55,7 +64,12 @@ const Row = ({
   </div>
 );
 
-const CheckoutView = () => {
+type Defaults = Partial<
+  Pick<CheckoutValues, "firstName" | "lastName" | "email" | "phone">
+>;
+
+const CheckoutView = ({ defaults = {} }: { defaults?: Defaults }) => {
+  const router = useRouter();
   const {
     ready,
     cartItems,
@@ -64,46 +78,69 @@ const CheckoutView = () => {
     total,
     deliveryMethod,
     setDeliveryMethod,
+    clearCart,
   } = useCart();
+
+  const [avail, setAvail] = useState<DeliveryAvailability | null>(null);
+  const [serverError, setServerError] = useState("");
+  const [cartProblem, setCartProblem] = useState(false);
 
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<CheckoutValues>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      country: "Nigeria",
+      firstName: defaults.firstName ?? "",
+      lastName: defaults.lastName ?? "",
+      country: SHIPPING_COUNTRY_CODES?.[0] ?? "GB",
       street: "",
       city: "",
       state: "",
-      phone: "",
-      email: "",
+      postcode: "",
+      phone: defaults.phone ?? "",
+      email: defaults.email ?? "",
       notes: "",
       agree: false,
     },
   });
+
+  // Which delivery options can be picked right now (same-day has a 2pm cut-off)
+  useEffect(() => {
+    setAvail(deliveryAvailability());
+  }, []);
+  useEffect(() => {
+    if (avail && !avail[deliveryMethod]?.available) {
+      const next = deliveryOptions.find((o) => avail[o.id]?.available);
+      if (next) setDeliveryMethod(next.id);
+    }
+  }, [avail, deliveryMethod, setDeliveryMethod]);
 
   const selected =
     deliveryOptions.find((o) => o.id === deliveryMethod) ?? deliveryOptions[0];
   const feeText = deliveryFee === 0 ? "Free" : formatPrice(deliveryFee);
 
   const placeOrder = handleSubmit(async (values) => {
-    // TODO: create a Stripe Checkout Session (server action / API route) from these
-    // items + deliveryMethod, then redirect the browser to session.url
-    console.log("[Checkout]", {
-      ...values,
+    setServerError("");
+    setCartProblem(false);
+    const res = await placeOrderAction(
+      values,
+      cartItems.map((i) => ({ id: i.id, qty: i.qty })),
       deliveryMethod,
-      items: cartItems.map(({ id, name, qty, price }) => ({
-        id,
-        name,
-        qty,
-        price,
-      })),
-      total,
-    });
+    );
+    if (!res.ok) {
+      if (res.code === "login") {
+        router.push("/auth?next=/checkout");
+        return;
+      }
+      setCartProblem(res.code === "stock");
+      setServerError(res.error);
+      return;
+    }
+    router.push(`/checkout/confirmed?id=${res.orderId}`);
+    clearCart();
   });
 
   if (!ready) return <div className="min-h-[50vh]" aria-busy="true" />;
@@ -153,10 +190,11 @@ const CheckoutView = () => {
               />
             </Field>
           </div>
-          <Field label="Country/Region">
-            <input
-              readOnly
-              className={`${inputClass} bg-gray-50 font-semibold text-gray-600`}
+          <Field label="Country/Region" error={errors.country?.message}>
+            <CountrySelect
+              className={inputClass}
+              only={SHIPPING_COUNTRY_CODES}
+              aria-invalid={!!errors.country}
               {...register("country")}
             />
           </Field>
@@ -176,23 +214,41 @@ const CheckoutView = () => {
               {...register("city")}
             />
           </Field>
-          <Field label="State" error={errors.state?.message}>
-            <input
-              className={inputClass}
-              autoComplete="address-level1"
-              aria-invalid={!!errors.state}
-              {...register("state")}
-            />
-          </Field>
+          <div className="grid grid-cols-2 gap-4">
+            <Field
+              label="County"
+              required={false}
+              error={errors.state?.message}
+            >
+              <input
+                className={inputClass}
+                autoComplete="address-level1"
+                aria-invalid={!!errors.state}
+                {...register("state")}
+              />
+            </Field>
+            <Field label="Postcode" error={errors.postcode?.message}>
+              <input
+                className={`${inputClass} uppercase`}
+                autoComplete="postal-code"
+                aria-invalid={!!errors.postcode}
+                {...register("postcode")}
+              />
+            </Field>
+          </div>
           <Field label="Phone Number" error={errors.phone?.message}>
-            <input
-              type="tel"
-              inputMode="tel"
-              placeholder="(555) 000-0000"
-              className={inputClass}
-              autoComplete="tel"
-              aria-invalid={!!errors.phone}
-              {...register("phone")}
+            <Controller
+              name="phone"
+              control={control}
+              render={({ field }) => (
+                <PhoneInput
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  inputClassName={inputClass}
+                  invalid={!!errors.phone}
+                />
+              )}
             />
           </Field>
           <Field label="Email Address" error={errors.email?.message}>
@@ -234,37 +290,47 @@ const CheckoutView = () => {
 
             <fieldset className="mt-6 space-y-5">
               <legend className="sr-only">Delivery method</legend>
-              {deliveryOptions.map((opt) => (
-                <label
-                  key={opt.id}
-                  className="flex cursor-pointer items-start gap-3"
-                >
-                  <input
-                    type="radio"
-                    name="delivery"
-                    value={opt.id}
-                    checked={deliveryMethod === opt.id}
-                    onChange={() => setDeliveryMethod(opt.id)}
-                    className="mt-1.5 size-4 accent-primary"
-                  />
-                  <span className="min-w-0 flex-1">
-                    <span className="flex justify-between gap-3 text-[16px] font-semibold">
-                      <span>{opt.label}</span>
-                      <span className="shrink-0">
-                        {opt.fee === 0 ? "Free" : formatPrice(opt.fee)}
+              {deliveryOptions.map((opt) => {
+                const a = avail?.[opt.id];
+                const disabled = a ? !a.available : false;
+                return (
+                  <label
+                    key={opt.id}
+                    className={`flex items-start gap-3 ${disabled ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
+                  >
+                    <input
+                      type="radio"
+                      name="delivery"
+                      value={opt.id}
+                      checked={deliveryMethod === opt.id}
+                      disabled={disabled}
+                      onChange={() => setDeliveryMethod(opt.id)}
+                      className="mt-1.5 size-4 accent-primary"
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="flex justify-between gap-3 text-[16px] font-semibold">
+                        <span>{opt.label}</span>
+                        <span className="shrink-0">
+                          {opt.fee === 0 ? "Free" : formatPrice(opt.fee)}
+                        </span>
                       </span>
-                    </span>
-                    <span className="mt-1 block text-[14px] leading-snug text-gray-700">
-                      {opt.note}
-                    </span>
-                    {opt.address && deliveryMethod === opt.id && (
-                      <span className="mt-2 block text-[14px] leading-snug">
-                        <b>Address:</b> {opt.address}
+                      <span className="mt-1 block text-[14px] leading-snug text-gray-700">
+                        {opt.note}
                       </span>
-                    )}
-                  </span>
-                </label>
-              ))}
+                      {disabled && a?.reason && (
+                        <span className="mt-1 block text-[13px] font-medium text-red-700">
+                          {a.reason}
+                        </span>
+                      )}
+                      {opt.address && deliveryMethod === opt.id && (
+                        <span className="mt-2 block text-[14px] leading-snug">
+                          <b>Address:</b> {opt.address}
+                        </span>
+                      )}
+                    </span>
+                  </label>
+                );
+              })}
             </fieldset>
 
             <div className="mt-6 flex items-center justify-between border-t border-black/30 pt-5 text-[20px] font-semibold">
@@ -273,18 +339,28 @@ const CheckoutView = () => {
             </div>
           </div>
 
-          {/* Payment: handled on Stripe's hosted page */}
+          {/* Payment */}
           <div className="rounded-3xl bg-[#eeeeee] p-5 md:p-8">
             <h2 className="text-[28px] font-semibold md:text-[40px]">
               Payment
             </h2>
             <p className="mt-3 text-[16px] md:text-[18px]">
-              You will be taken to Stripe to pay securely.
+              We&apos;ll get in touch to arrange payment once your order is
+              placed.
             </p>
             <p className="mt-5 text-[14px] leading-snug">
               Your personal data will be used to process your order, support
               your experience throughout this website, and for other purposes
-              described in our privacy policy.
+              described in our{" "}
+              <Link
+                href="/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold underline"
+              >
+                privacy policy
+              </Link>
+              .
             </p>
             <label className="mt-5 flex items-start gap-3 text-[14px]">
               <input
@@ -293,7 +369,18 @@ const CheckoutView = () => {
                 className="mt-0.5 size-5 shrink-0 accent-primary"
                 {...register("agree")}
               />
-              I have read and agree to the website terms and conditions.
+              <span>
+                I have read and agree to the website{" "}
+                <Link
+                  href="/terms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold underline"
+                >
+                  terms and conditions
+                </Link>
+                .
+              </span>
             </label>
             {errors.agree && (
               <p role="alert" className="mt-1 text-[13px] text-red-600">
@@ -306,8 +393,21 @@ const CheckoutView = () => {
               disabled={isSubmitting}
               className="mx-auto mt-6 block h-12 w-full max-w-90 rounded-full bg-primary text-[18px] font-semibold text-white disabled:opacity-60"
             >
-              {isSubmitting ? "Please wait..." : "Place Order"}
+              {isSubmitting ? "Please wait..." : "Place order"}
             </button>
+            {serverError && (
+              <p
+                role="alert"
+                className="mt-4 text-center text-[14px] text-red-600"
+              >
+                {serverError}{" "}
+                {cartProblem && (
+                  <Link href="/cart" className="font-semibold underline">
+                    Go to cart
+                  </Link>
+                )}
+              </p>
+            )}
           </div>
         </div>
       </form>

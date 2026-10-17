@@ -1,129 +1,15 @@
-// import { useEffect, useState } from "react";
-// import { CartContext } from "./cartContextDefinition";
-// // import { getProducts } from "../services/products";
-
-// const CART_KEY = "cart_items";
-// const FREE_DELIVERY_THRESHOLD = 50;
-// const FLAT_DELIVERY_FEE = 4.99;
-
-// function loadCart() {
-//   try {
-//     const raw = localStorage.getItem(CART_KEY);
-//     return raw ? JSON.parse(raw) : [];
-//   } catch {
-//     return [];
-//   }
-// }
-
-// export function CartProvider({ children }) {
-//   // Product grid data
-//   const [products, setProducts] = useState([]);
-//   useEffect(() => {
-//     async function loadProducts() {
-//       const data = await getProducts();
-//       setProducts(data);
-//     }
-//     loadProducts();
-//   }, []);
-
-//   // Cart state — hydrated from localStorage on first render
-//   const [cartItems, setCartItems] = useState(loadCart);
-
-//   // Persist on every change
-//   useEffect(() => {
-//     try {
-//       localStorage.setItem(CART_KEY, JSON.stringify(cartItems));
-//     } catch {
-//       // ignore storage errors (private browsing, quota, etc.)
-//     }
-//   }, [cartItems]);
-
-//   // Add product to cart
-//   const handleClick = (p) => {
-//     setCartItems((prevItems) => {
-//       const exists = prevItems.some((c) => c.id === p.id);
-//       if (!exists) {
-//         const qty = typeof p.qty === "number" ? p.qty : Number(p.qty) || 1;
-//         return [...prevItems, { ...p, qty }];
-//       }
-//       return prevItems.map((it) =>
-//         it.id === p.id ? { ...it, qty: Math.max(1, it.qty + 1) } : it,
-//       );
-//     });
-//   };
-
-//   const [productsLoading, setProductsLoading] = useState(true);
-//   useEffect(() => {
-//     async function loadProducts() {
-//       const data = await getProducts();
-//       setProducts(data);
-//       setProductsLoading(false);
-//     }
-//     loadProducts();
-//   }, []);
-
-//   // Update quantity
-//   const setQty = (id, edit) =>
-//     setCartItems((prevItems) =>
-//       prevItems.map((it) =>
-//         it.id === id ? { ...it, qty: Math.max(1, (it.qty ?? 0) + edit) } : it,
-//       ),
-//     );
-
-//   // Remove from cart
-//   const remove = (id) =>
-//     setCartItems((prevItems) => prevItems.filter((it) => it.id !== id));
-//   const clearCart = () => setCartItems([]);
-
-//   // Calculate totals
-//   const subtotal = cartItems.reduce(
-//     (s, i) => s + (Number(i.price) || 0) * (Number(i.qty) || 0),
-//     0,
-//   );
-//   const cartCount = cartItems.length;
-
-//   // Delivery rule: free above the threshold, flat fee below it, nothing if cart is empty
-//   const delivery =
-//     cartItems.length === 0
-//       ? 0
-//       : subtotal >= FREE_DELIVERY_THRESHOLD
-//         ? 0
-//         : FLAT_DELIVERY_FEE;
-
-//   const total = subtotal + delivery;
-
-//   return (
-//     <CartContext.Provider
-//       value={{
-//         products,
-//         cartItems,
-//         setCartItems,
-//         handleClick,
-//         setQty,
-//         remove,
-//         subtotal,
-//         delivery,
-//         total,
-//         cartCount,
-//         clearCart,
-//         freeDeliveryThreshold: FREE_DELIVERY_THRESHOLD,
-//         productsLoading,
-//       }}
-//     >
-//       {children}
-//     </CartContext.Provider>
-//   );
-// }
 "use client";
 
 import {
   createContext,
   useContext,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
-import { products, type Product } from "@/dummydata/productData";
+import { getCartProductsAction } from "@/app/cart/actions";
+import type { Product } from "@/lib/products";
 import {
   DEFAULT_DELIVERY,
   deliveryOptions,
@@ -132,17 +18,16 @@ import {
 
 export type CartItem = Product & { qty: number };
 
-// v2 stores only { id, qty } and uses its own key, so old data from other projects on the
-// same origin (localhost) can never leak in and break the totals
-const CART_KEY = "bimgold_cart_v2";
+// v3: product ids now come from the database, so older carts are ignored
+const CART_KEY = "bimgold_cart_v3";
 const MAX_QTY = 99;
-/** Seeds 4 in-stock items on the first visit so the UI isn't empty. Set to false later. */
-const SEED_DEMO_CART = true;
+
+type Line = { id: number; qty: number };
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
 type CartContextValue = {
-  /** false until the cart has been read from localStorage (avoids a flash of "empty cart") */
+  /** false until the cart has been restored (avoids a flash of "empty cart") */
   ready: boolean;
   cartItems: CartItem[];
   cartCount: number;
@@ -164,41 +49,60 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [ready, setReady] = useState(false);
   const [deliveryMethod, setDeliveryMethod] =
     useState<DeliveryMethodId>(DEFAULT_DELIVERY);
+  const restoreFailed = useRef(false);
 
-  // Hydrate from localStorage after mount (reading it during render would break SSR)
+  // Restore after mount: read saved { id, qty } lines, then ask the server
+  // for the current price/stock of those products.
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(CART_KEY);
-      if (raw) {
-        const saved: unknown = JSON.parse(raw);
-        if (Array.isArray(saved)) {
-          // Rebuild from current product data so price/stock are never stale or malformed
-          setCartItems(
-            saved.flatMap((s) => {
-              const product = products.find((p) => p.id === s?.id);
+    let cancelled = false;
+
+    async function restore() {
+      try {
+        const raw = localStorage.getItem(CART_KEY);
+        const saved: unknown = raw ? JSON.parse(raw) : [];
+        const lines: Line[] = Array.isArray(saved)
+          ? saved.flatMap((s) => {
+              const id = Number(s?.id);
               const qty = Number(s?.qty);
-              return product && Number.isInteger(qty) && qty > 0
-                ? [{ ...product, qty: Math.min(MAX_QTY, qty) }]
+              return Number.isInteger(id) &&
+                id >= 0 &&
+                Number.isInteger(qty) &&
+                qty > 0
+                ? [{ id, qty: Math.min(MAX_QTY, qty) }]
                 : [];
-            }),
-          );
+            })
+          : [];
+
+        if (lines.length > 0) {
+          const fresh = await getCartProductsAction(lines.map((l) => l.id));
+          if (cancelled) return;
+          const restored: CartItem[] = lines.flatMap((l) => {
+            const product = fresh.find((p) => p.id === l.id);
+            return product ? [{ ...product, qty: l.qty }] : [];
+          });
+          // keep anything the visitor added while this was loading
+          setCartItems((prev) => [
+            ...restored,
+            ...prev.filter((p) => !restored.some((r) => r.id === p.id)),
+          ]);
         }
-      } else if (SEED_DEMO_CART) {
-        setCartItems(
-          products
-            .filter((p) => p.inStock)
-            .slice(0, 4)
-            .map((p) => ({ ...p, qty: 1 })),
-        );
+      } catch {
+        // offline or server error: leave the saved cart untouched
+        restoreFailed.current = true;
       }
-    } catch {
-      // ignore storage errors
+      if (!cancelled) setReady(true);
     }
-    setReady(true);
+
+    restore();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
     if (!ready) return;
+    // don't overwrite a saved cart with an empty one after a failed restore
+    if (restoreFailed.current && cartItems.length === 0) return;
     try {
       localStorage.setItem(
         CART_KEY,
@@ -234,7 +138,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const clearCart = () => setCartItems([]);
 
   const subtotal = round2(cartItems.reduce((s, i) => s + i.price * i.qty, 0));
-  // Delivery / pickup fee comes from the chosen method. Local pickup is free.
   const deliveryFee =
     cartItems.length === 0
       ? 0
@@ -246,7 +149,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       value={{
         ready,
         cartItems,
-        // total units, so +/- changes show in the navbar badge
         cartCount: cartItems.reduce((n, i) => n + i.qty, 0),
         addToCart,
         setQty,

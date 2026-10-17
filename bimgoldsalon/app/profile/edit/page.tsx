@@ -1,19 +1,24 @@
+import type { Metadata } from "next";
 import AuthCardLayout from "@/components/auth/AuthCardLayout";
-import EditProfileForm from "@/components/profile/EditProfileForm";
+import EditProfileClient from "@/components/profile/EditProfileClient";
+import { requireUser } from "@/lib/auth/dal";
 
-const EditProfilePage = () => {
-  // TODO: load the signed-in user's real data
-  const user = { name: "Alex Smith", email: "alex@example.com", phone: "" };
-
-  return (
-    <AuthCardLayout
-      heading="Your Profile"
-      subheading="Keep your details up to date"
-      backTo={{ label: "Home", href: "/" }}
-    >
-      <EditProfileForm user={user} />
-    </AuthCardLayout>
-  );
+export const metadata: Metadata = {
+  title: "Edit profile",
+  robots: { index: false },
 };
 
-export default EditProfilePage;
+export default async function EditProfilePage() {
+  const user = await requireUser("/profile/edit");
+  return (
+    <AuthCardLayout
+      heading="Your profile"
+      subheading="Keep your details up to date"
+      backTo={{ label: "Account", href: "/account" }}
+    >
+      <EditProfileClient
+        user={{ name: user.name, email: user.email, phone: user.phone }}
+      />
+    </AuthCardLayout>
+  );
+}

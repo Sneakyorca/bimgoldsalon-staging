@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { MouseEvent } from "react";
 import { useCart } from "@/context/CartContext";
-import type { Product } from "@/dummydata/productData";
+import type { Product } from "@/lib/products";
 import { formatPrice } from "@/lib/format";
 
 type Props = {
@@ -23,6 +23,7 @@ const ProductCard = ({
 }: Props) => {
   const { ready, cartItems, addToCart } = useCart();
   const isGrid = variant === "grid";
+  const hasDiscount = product.discountPercent > 0;
   const inCart = ready
     ? (cartItems.find((i) => i.id === product.id)?.qty ?? 0)
     : 0;
@@ -55,6 +56,11 @@ const ProductCard = ({
           {product.inStock ? "In stock" : "Out of stock"}
         </span>
       )}
+      {hasDiscount && (
+        <span className="absolute right-3 top-3 z-10 rounded-full bg-primary px-2.5 py-1 text-[12px] font-semibold text-white md:text-[13px]">
+          -{Math.round(product.discountPercent)}%
+        </span>
+      )}
       <Image
         src={product.image}
         alt={product.name}
@@ -64,11 +70,13 @@ const ProductCard = ({
           isGrid ? "h-64 lg:h-72.25" : "h-32.25 lg:h-72.25"
         }`}
       />
-      <h3 className="mt-3 text-[16px] font-semibold">{product.name}</h3>
+      <h3 className="mt-3 line-clamp-2 text-[16px] font-semibold">
+        {product.name}
+      </h3>
       <p
         className={
           isGrid
-            ? "mt-1 text-[14px] leading-snug md:text-[10px]"
+            ? "mt-1 line-clamp-4 text-[14px] leading-snug md:text-[10px]"
             : "mt-1 line-clamp-1 text-[10px] leading-snug lg:line-clamp-4"
         }
       >
@@ -77,6 +85,11 @@ const ProductCard = ({
       <div className="mt-3 flex items-center justify-between">
         <span className="text-[16px] font-bold">
           {formatPrice(product.price)}
+          {hasDiscount && (
+            <span className="ml-2 text-[12px] font-normal text-gray-500 line-through">
+              {formatPrice(product.originalPrice)}
+            </span>
+          )}
         </span>
         <button
           type="button"

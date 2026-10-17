@@ -7,11 +7,13 @@ import {
   type ButtonHTMLAttributes,
   type InputHTMLAttributes,
 } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import PhoneInput from "@/components/common/PhoneInput";
 
 /** Receives the validated form values. Pass a server action (or any async fn) from your page. */
 export type SubmitHandler<T> = (values: T) => Promise<void> | void;
 
-const inputClass =
+export const inputClass =
   "h-13 w-full rounded-lg border border-black bg-transparent px-3 text-[15px] md:text-[18px] text-[#313c6b] outline-none placeholder:text-gray-500 focus:ring-2 focus:ring-[#313c6b]/40 aria-invalid:border-red-600 aria-invalid:ring-2 aria-invalid:ring-red-500/40 md:h-14 md:border-0 md:bg-[#e0e0e0] md:px-5 md:text-black md:placeholder:text-[#555]";
 
 /** Shared heading styles so every auth page matches. Add a text colour where used. */
@@ -58,21 +60,39 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
 );
 TextField.displayName = "TextField";
 
-/** Optional phone field: empty is valid (see the zod schema). */
-export const PhoneField = forwardRef<
-  HTMLInputElement,
-  Omit<TextFieldProps, "label" | "type">
->((props, ref) => (
-  <TextField
-    ref={ref}
-    label="Phone number (optional)"
-    type="tel"
-    inputMode="tel"
-    autoComplete="tel"
-    {...props}
-  />
-));
-PhoneField.displayName = "PhoneField";
+/** Optional phone field with a country-code dropdown. Value looks like "+447123456789". */
+export const PhoneField = ({
+  value,
+  onChange,
+  onBlur,
+  error,
+  label = "Phone number (optional)",
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  onBlur?: () => void;
+  error?: string;
+  label?: string;
+}) => {
+  const id = useId();
+  return (
+    <div>
+      <label htmlFor={id} className="sr-only">
+        {label}
+      </label>
+      <PhoneInput
+        id={id}
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
+        inputClassName={inputClass}
+        invalid={!!error}
+        placeholder={label}
+      />
+      <FieldError id={`${id}-error`} error={error} />
+    </div>
+  );
+};
 
 export const PasswordField = forwardRef<
   HTMLInputElement,
@@ -100,9 +120,13 @@ export const PasswordField = forwardRef<
           type="button"
           onClick={() => setShow((s) => !s)}
           aria-label={show ? "Hide password" : "Show password"}
-          className="absolute right-4 top-1/2 -translate-y-1/2 text-[14px] font-bold"
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-600 transition hover:text-primary"
         >
-          {show ? "Hide" : "Show"}
+          {show ? (
+            <EyeOff className="size-5" aria-hidden="true" />
+          ) : (
+            <Eye className="size-5" aria-hidden="true" />
+          )}
         </button>
       </div>
       <FieldError id={`${id}-error`} error={error} />
@@ -188,12 +212,3 @@ export const OrDivider = () => (
     <span className="h-px flex-1 bg-gray-300" />
   </div>
 );
-export const logSubmit = (label: string, values: Record<string, unknown>) => {
-  const safe = Object.fromEntries(
-    Object.entries(values).map(([key, value]) => [
-      key,
-      /password/i.test(key) && value ? "••••••••" : value,
-    ]),
-  );
-  console.log(`[${label}]`, safe);
-};

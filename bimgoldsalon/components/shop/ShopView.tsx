@@ -2,29 +2,35 @@
 
 import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
-import { categories, products } from "@/dummydata/productData";
+import type { Product } from "@/lib/products";
 import ProductCard from "../site/ProductCard";
 import Pagination from "./Pagination";
 
 const PAGE_SIZE = 8;
-const filters = ["All Products", ...categories] as const;
-type Filter = (typeof filters)[number];
+const ALL = "All Products";
 
-const ShopView = () => {
+const ShopView = ({
+  products,
+  categories,
+}: {
+  products: Product[];
+  categories: string[];
+}) => {
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<Filter>("All Products");
+  const [category, setCategory] = useState<string>(ALL);
   const [page, setPage] = useState(1);
+  const filters = [ALL, ...categories];
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return products.filter(
       (p) =>
-        (category === "All Products" || p.category === category) &&
+        (category === ALL || p.category === category) &&
         (!q ||
           p.name.toLowerCase().includes(q) ||
           p.blurb.toLowerCase().includes(q)),
     );
-  }, [query, category]);
+  }, [products, query, category]);
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const current = Math.min(page, pageCount);

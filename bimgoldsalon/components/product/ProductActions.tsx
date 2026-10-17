@@ -3,7 +3,7 @@
 import { ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
-import type { Product } from "@/dummydata/productData";
+import type { Product } from "@/lib/products";
 import QtyStepper from "../site/QtyStepper";
 
 /**
