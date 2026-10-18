@@ -12,7 +12,11 @@ import { serviceInputSchema } from "@/lib/admin/service-schema";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { isISODate } from "@/lib/booking";
 import type { ProductInput } from "@/lib/products";
-import { DEFAULT_DEPOSIT_PERCENT, type ServiceInput } from "@/lib/services";
+import {
+  DEFAULT_DEPOSIT_PERCENT,
+  DEFAULT_SERVICE_CAPACITY,
+  type ServiceInput,
+} from "@/lib/services";
 import {
   BOOKING_STATUSES,
   ORDER_STATUSES,
@@ -263,7 +267,7 @@ export async function createService(input: {
       durationLabel: "",
       depositPercent: DEFAULT_DEPOSIT_PERCENT,
       featured: false,
-      capacity: 1,
+      capacity: DEFAULT_SERVICE_CAPACITY,
       image: "",
       images: [],
       extraInfo: {},

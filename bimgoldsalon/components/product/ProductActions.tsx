@@ -1,6 +1,7 @@
 "use client";
 
 import { ShoppingCart } from "lucide-react";
+import { toast } from "sonner";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import type { Product } from "@/lib/products";
@@ -29,7 +30,10 @@ const ProductActions = ({ product }: { product: Product }) => {
       <div className="mt-8">
         <button
           type="button"
-          onClick={() => addToCart(product)}
+          onClick={() => {
+            addToCart(product);
+            toast.success("Added to cart");
+          }}
           className="inline-flex h-12 items-center gap-2 rounded-full bg-primary px-8 text-[16px] font-semibold text-white"
         >
           <ShoppingCart className="size-5" />

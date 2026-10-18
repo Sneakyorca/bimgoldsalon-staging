@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useBooking } from "@/context/BookingContext";
 import { formatGBP } from "@/lib/booking";
+import { Skeleton } from "@/components/ui/Skeleton";
 import BookingShell from "./BookingShell";
 import BookingSummary from "./BookingSummary";
 
@@ -45,8 +46,26 @@ const ServicesStep = () => {
           {loadError}
         </p>
       ) : !ready ? (
-        <div className="min-h-[40vh]" aria-busy="true">
-          <p className="text-gray-600">Loading services…</p>
+        <div aria-busy="true" aria-label="Loading services">
+          <div className="flex gap-3">
+            {[0, 1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-10 w-28 rounded-full" />
+            ))}
+          </div>
+          <ul className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-1">
+            {[0, 1, 2].map((i) => (
+              <li
+                key={i}
+                className="rounded-2xl border border-black/10 bg-[#f9f9f9] p-5"
+              >
+                <Skeleton className="h-7 w-2/3" />
+                <Skeleton className="mt-3 h-4 w-1/4" />
+                <Skeleton className="mt-4 h-4 w-full" />
+                <Skeleton className="mt-2 h-4 w-5/6" />
+                <Skeleton className="mt-6 h-6 w-1/3" />
+              </li>
+            ))}
+          </ul>
         </div>
       ) : catalog.length === 0 ? (
         <p className="text-gray-600">
@@ -81,7 +100,7 @@ const ServicesStep = () => {
               return (
                 <li
                   key={s.id}
-                  className={`flex flex-col rounded-2xl border bg-[#f9f9f9] p-5 ${on ? "border-2 border-primary" : "border-black/60"}`}
+                  className={`flex flex-col rounded-2xl border bg-[#f9f9f9] p-5 transition-shadow duration-200 hover:shadow-md ${on ? "border-2 border-primary" : "border-black/60"}`}
                 >
                   <h3 className="text-[26px] font-semibold leading-tight">
                     {s.name}

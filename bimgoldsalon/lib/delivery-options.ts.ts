@@ -1,4 +1,4 @@
-export type DeliveryMethodId = "same-day" | "next-day" | "pickup";
+export type DeliveryMethodId = "next-day" | "pickup";
 
 export type DeliveryOption = {
   id: DeliveryMethodId;
@@ -10,16 +10,10 @@ export type DeliveryOption = {
 
 export const deliveryOptions: DeliveryOption[] = [
   {
-    id: "same-day",
-    label: "Same day delivery",
-    fee: 20,
-    note: "Please note: order must be placed before 2pm, Tuesday – Saturday.",
-  },
-  {
     id: "next-day",
     label: "Next day delivery (after dispatch)",
     fee: 15,
-    note: "We only dispatch orders during days we are open, which is Tuesday - Saturday. We aim to deliver same day where possible.",
+    note: "UK delivery only. We only dispatch orders on the days we are open, Tuesday – Saturday.",
   },
   {
     id: "pickup",
@@ -30,4 +24,4 @@ export const deliveryOptions: DeliveryOption[] = [
   },
 ];
 
-export const DEFAULT_DELIVERY: DeliveryMethodId = "same-day";
+export const DEFAULT_DELIVERY: DeliveryMethodId = "next-day";

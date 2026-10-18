@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { toast } from "sonner";
 import { saveProduct } from "@/app/admin/actions";
 import { formatPrice } from "@/lib/format";
 import {
@@ -85,7 +86,10 @@ export default function ProductForm({
         extraInfo,
       });
       if (!result.ok) setError(result.error);
-      else onSaved();
+      else {
+        toast.success("Saved");
+        onSaved();
+      }
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {

@@ -5,6 +5,8 @@ import "@fontsource/poppins/500.css";
 import "@fontsource/poppins/600.css";
 import "@fontsource/poppins/700.css";
 import "./globals.css";
+import NextTopLoader from "nextjs-toploader";
+import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/site/Navbar";
 import Footer from "@/components/site/Footer";
@@ -35,6 +37,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={cn("h-full", "antialiased", inter.variable, jakarta.variable)}
     >
       <body className="min-h-full flex flex-col">
+        <NextTopLoader
+          color="#313c6b"
+          height={3}
+          showSpinner={false}
+          shadow={false}
+        />
         <CartProvider>
           <BookingProvider>
             <Navbar />
@@ -42,6 +50,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <Footer />
           </BookingProvider>
         </CartProvider>
+        <Toaster position="top-center" richColors closeButton />
       </body>
     </html>
   );

@@ -1,5 +1,7 @@
 /** Used when a service doesn't set its own. Editable per service in the admin. */
 export const DEFAULT_DEPOSIT_PERCENT = 30;
+/** Two stylists work at once, so each service can be booked twice at the same time */
+export const DEFAULT_SERVICE_CAPACITY = 2;
 
 /** What the public booking pages use. `id` is a string so existing code keeps working. */
 export type Service = {

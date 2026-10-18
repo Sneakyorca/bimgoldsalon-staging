@@ -4,6 +4,7 @@ import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { MouseEvent } from "react";
+import { toast } from "sonner";
 import { useCart } from "@/context/CartContext";
 import type { Product } from "@/lib/products";
 import { formatPrice } from "@/lib/format";
@@ -32,6 +33,7 @@ const ProductCard = ({
     e.preventDefault(); // the card is a link, don't navigate
     e.stopPropagation();
     addToCart(product);
+    toast.success("Added to cart");
   };
 
   const label = !product.inStock
@@ -43,7 +45,7 @@ const ProductCard = ({
   return (
     <Link
       href={`/product/${product.id}`}
-      className={`relative rounded-lg bg-card p-4 ${
+      className={`group relative rounded-lg bg-card p-4 transition duration-200 hover:-translate-y-1 hover:shadow-md ${
         isGrid ? "block h-full" : "inline-block h-full pt-0 md:pt-4"
       }`}
     >
@@ -66,7 +68,7 @@ const ProductCard = ({
         alt={product.name}
         width={220}
         height={220}
-        className={`mx-auto w-auto object-contain ${
+        className={`mx-auto w-auto object-contain transition-transform duration-300 group-hover:scale-105 ${
           isGrid ? "h-64 lg:h-72.25" : "h-32.25 lg:h-72.25"
         }`}
       />

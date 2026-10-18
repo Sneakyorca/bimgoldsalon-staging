@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { getAvailabilityAction } from "@/app/booking/actions";
 import { useBooking } from "@/context/BookingContext";
 import { dayParts, formatTime, type Availability } from "@/lib/booking";
+import { Skeleton } from "@/components/ui/Skeleton";
 import BookingShell from "./BookingShell";
 import BookingSummary from "./BookingSummary";
 
@@ -111,9 +112,20 @@ const TimeStep = () => {
           {availError}
         </p>
       ) : !avail ? (
-        <p className="min-h-[40vh] text-gray-600" aria-busy="true">
-          Loading available times…
-        </p>
+        <div aria-busy="true" aria-label="Loading available times">
+          <Skeleton className="h-6 w-36" />
+          <div className="mt-3 flex gap-3 overflow-hidden">
+            {Array.from({ length: 8 }, (_, i) => (
+              <Skeleton key={i} className="h-24 w-20 shrink-0 rounded-lg" />
+            ))}
+          </div>
+          <Skeleton className="mt-6 h-6 w-28" />
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {Array.from({ length: 6 }, (_, i) => (
+              <Skeleton key={i} className="h-12 rounded-lg" />
+            ))}
+          </div>
+        </div>
       ) : (
         <>
           <div className="flex items-center justify-between">

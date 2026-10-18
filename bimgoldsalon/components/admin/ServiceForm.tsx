@@ -1,10 +1,12 @@
 "use client";
 import { useState } from "react";
+import { toast } from "sonner";
 import { saveService } from "@/app/admin/actions";
 import { formatDuration } from "@/lib/booking";
 import { formatPrice } from "@/lib/format";
 import {
   DEFAULT_DEPOSIT_PERCENT,
+  DEFAULT_SERVICE_CAPACITY,
   serviceDeposit,
   type AdminService,
 } from "@/lib/services";
@@ -37,7 +39,7 @@ export default function ServiceForm({
     String(initialService?.depositPercent ?? DEFAULT_DEPOSIT_PERCENT),
   );
   const [capacity, setCapacity] = useState(
-    String(initialService?.capacity ?? 1),
+    String(initialService?.capacity ?? DEFAULT_SERVICE_CAPACITY),
   );
   const [featured, setFeatured] = useState(initialService?.featured ?? false);
   const [image, setImage] = useState(initialService?.image ?? "");
@@ -92,7 +94,10 @@ export default function ServiceForm({
         extraInfo,
       });
       if (!result.ok) setError(result.error);
-      else onSaved();
+      else {
+        toast.success("Saved");
+        onSaved();
+      }
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
