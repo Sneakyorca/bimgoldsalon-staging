@@ -48,6 +48,9 @@ const AuthShell = ({ initialMode = "signin", onSignIn, onSignUp }: Props) => {
   const toggle = () => {
     const next: Mode = isSignIn ? "signup" : "signin";
     setMode(next);
+    // on phones the switch link is at the bottom, so show the new form from the top
+    if (window.innerWidth < 768)
+      window.scrollTo({ top: 0, behavior: "smooth" });
     // keep the URL shareable without triggering a navigation
     const { pathname } = window.location;
     window.history.replaceState(

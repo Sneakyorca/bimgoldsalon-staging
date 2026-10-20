@@ -1,7 +1,14 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getAnalytics } from "@/Data/analytics";
+import * as settingsData from "@/Data/settings";
+import * as waitlistData from "@/Data/waitlist";
+import { notifyWaitlistEntry } from "@/lib/email/notify";
+import { settingsSchema, type SettingsInput } from "@/lib/schemas/settings";
+import type { Analytics } from "@/lib/analytics";
 import { z } from "zod";
+import * as applicationData from "@/Data/applications";
 import * as productData from "@/Data/adminProducts";
 import * as serviceData from "@/Data/adminServices";
 import * as blockedData from "@/Data/blockedDates";
@@ -18,10 +25,12 @@ import {
   type ServiceInput,
 } from "@/lib/services";
 import {
+  APPLICATION_STATUSES,
   BOOKING_STATUSES,
   ORDER_STATUSES,
   PAYMENT_STATUSES,
 } from "@/lib/statuses";
+import { notifyBookingStatus, notifyOrderStatus } from "@/lib/email/notify";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -79,8 +88,11 @@ export async function setBookingStatus(bookingId: string, status: string) {
   const p = z
     .object({ id: uuid, status: z.enum(BOOKING_STATUSES) })
     .parse({ id: bookingId, status });
+  const before = await bookingData.getBookingStatusRecord(p.id);
   throwIfFailed(await bookingData.setBookingStatusRecord(p.id, p.status));
   refreshBooking();
+  // only email when the status actually changed
+  if (before !== p.status) notifyBookingStatus(p.id, p.status);
 }
 
 export async function setBookingPaid(bookingId: string, paid: boolean) {
@@ -132,7 +144,6 @@ export async function unblockDate(blockId: string): Promise<Result> {
 }
 
 // ---- Orders -------------------------------------------------------------------
-
 export async function setOrderStatus(
   orderId: string,
   status: string,
@@ -142,13 +153,13 @@ export async function setOrderStatus(
       .object({ id: numericId, status: z.enum(ORDER_STATUSES) })
       .safeParse({ id: orderId, status });
     if (!p.success) return { ok: false, error: "Invalid order." };
-    const res = await orderData.setOrderStatusRecord(
-      Number(p.data.id),
-      p.data.status,
-    );
+    const id = Number(p.data.id);
+    const before = await orderData.getOrderStatusRecord(id);
+    const res = await orderData.setOrderStatusRecord(id, p.data.status);
     if (res.ok) {
       refreshShop(); // cancelling puts stock back
       revalidatePath("/account");
+      if (before !== p.data.status) notifyOrderStatus(id, p.data.status);
     }
     return res;
   });
@@ -304,5 +315,114 @@ export async function saveService(
     );
     if (result.ok) refreshBooking();
     return result;
+  });
+}
+// ---- Training applications ---------------------------------------------------------
+
+export async function setApplicationStatus(
+  applicationId: string,
+  status: string,
+): Promise<Result> {
+  return guarded(async () => {
+    const p = z
+      .object({ id: uuid, status: z.enum(APPLICATION_STATUSES) })
+      .safeParse({ id: applicationId, status });
+    if (!p.success) return { ok: false, error: "Invalid application." };
+    const res = await applicationData.setApplicationStatusRecord(
+      p.data.id,
+      p.data.status,
+    );
+    if (res.ok) done();
+    return res;
+  });
+}
+
+export async function setApplicationNotes(
+  applicationId: string,
+  notes: string,
+): Promise<Result> {
+  return guarded(async () => {
+    const p = z
+      .object({ id: uuid, notes: z.string().max(1000) })
+      .safeParse({ id: applicationId, notes });
+    if (!p.success) return { ok: false, error: "Notes are too long." };
+    const res = await applicationData.setApplicationNotesRecord(
+      p.data.id,
+      p.data.notes,
+    );
+    if (res.ok) done();
+    return res;
+  });
+}
+
+export async function removeApplication(
+  applicationId: string,
+): Promise<Result> {
+  return guarded(async () => {
+    const p = uuid.safeParse(applicationId);
+    if (!p.success) return { ok: false, error: "Invalid application." };
+    const res = await applicationData.deleteApplicationRecord(p.data);
+    if (res.ok) done();
+    return res;
+  });
+}
+// ---- Settings -----------------------------------------------------------------------
+
+export async function saveSettings(input: SettingsInput): Promise<Result> {
+  return guarded(async () => {
+    const p = settingsSchema.safeParse(input);
+    if (!p.success) return { ok: false, error: firstIssue(p.error) };
+    const res = await settingsData.saveSettingsRecord(p.data);
+    if (res.ok) {
+      refreshBooking();
+      revalidatePath("/", "layout"); // the footer and About page show the hours
+    }
+    return res;
+  });
+}
+
+// ---- Analytics ----------------------------------------------------------------------
+
+export async function getAnalyticsAction(
+  range: string,
+): Promise<{ ok: true; data: Analytics } | { ok: false; error: string }> {
+  try {
+    if (!(await isAdminUser()))
+      return {
+        ok: false,
+        error:
+          "Your sign-in has expired. Please refresh the page and sign in again.",
+      };
+    const p = z.enum(["7d", "30d", "90d", "12m"]).safeParse(range);
+    if (!p.success) return { ok: false, error: "Invalid range." };
+    return { ok: true, data: await getAnalytics(p.data) };
+  } catch (e) {
+    console.error("[getAnalyticsAction]", e);
+    return {
+      ok: false,
+      error: "Could not load the numbers. Please try again.",
+    };
+  }
+}
+
+// ---- Waitlist -----------------------------------------------------------------------
+
+export async function sendWaitlistNotice(entryId: string): Promise<Result> {
+  return guarded(async () => {
+    const p = uuid.safeParse(entryId);
+    if (!p.success) return { ok: false, error: "Invalid entry." };
+    notifyWaitlistEntry(p.data);
+    done();
+    return { ok: true };
+  });
+}
+
+export async function removeWaitlistEntry(entryId: string): Promise<Result> {
+  return guarded(async () => {
+    const p = uuid.safeParse(entryId);
+    if (!p.success) return { ok: false, error: "Invalid entry." };
+    const res = await waitlistData.deleteWaitlistRecord(p.data);
+    if (res.ok) done();
+    return res;
   });
 }

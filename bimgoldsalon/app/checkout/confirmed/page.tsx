@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getOrderForUser } from "@/Data/orders";
-import { deliveryOptions } from "@/lib/delivery-options.ts";
+import { deliveryOptions } from "@/lib/delivery-options";
 import { requireUser } from "@/lib/auth/dal";
 import { countryName } from "@/lib/countries";
 import { formatPrice } from "@/lib/format";

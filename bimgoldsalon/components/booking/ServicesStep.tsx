@@ -2,12 +2,13 @@
 
 import { Check, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import { useBooking } from "@/context/BookingContext";
 import { formatGBP } from "@/lib/booking";
 import { Skeleton } from "@/components/ui/Skeleton";
 import BookingShell from "./BookingShell";
 import BookingSummary from "./BookingSummary";
+import ServiceThumb from "./ServiceThumb";
 
 const ServicesStep = () => {
   const router = useRouter();
@@ -94,20 +95,29 @@ const ServicesStep = () => {
 
           <h2 className="mt-6 text-[18px] font-semibold">{tab}</h2>
 
-          <ul className="mt-4 grid gap-5 md:grid-cols-2 lg:grid-cols-1">
-            {list.map((s) => {
+          <ul
+            key={tab}
+            className="mt-4 grid gap-5 md:grid-cols-2 lg:grid-cols-1"
+          >
+            {list.map((s, i) => {
               const on = selectedIds.has(s.id);
               return (
                 <li
                   key={s.id}
-                  className={`flex flex-col rounded-2xl border bg-[#f9f9f9] p-5 transition-shadow duration-200 hover:shadow-md ${on ? "border-2 border-primary" : "border-black/60"}`}
+                  style={{ "--i": Math.min(i, 8) } as CSSProperties}
+                  className={`fade-up flex flex-col rounded-2xl border bg-[#f9f9f9] p-5 transition-shadow duration-200 hover:shadow-md ${on ? "border-2 border-primary" : "border-black/60"}`}
                 >
-                  <h3 className="text-[26px] font-semibold leading-tight">
-                    {s.name}
-                  </h3>
-                  <p className="mt-1 text-[14px] text-gray-500">
-                    {s.durationLabel}
-                  </p>
+                  <div className="flex items-start gap-4">
+                    <ServiceThumb image={s.image} />
+                    <div className="min-w-0">
+                      <h3 className="text-[26px] font-semibold leading-tight">
+                        {s.name}
+                      </h3>
+                      <p className="mt-1 text-[14px] text-gray-500">
+                        {s.durationLabel}
+                      </p>
+                    </div>
+                  </div>
                   <div className="mt-3 space-y-1 text-[16px] leading-snug">
                     {s.details.map(([label, text]) => (
                       <p key={label}>
@@ -124,7 +134,7 @@ const ServicesStep = () => {
                       onClick={() => toggleService(s.id)}
                       aria-pressed={on}
                       aria-label={on ? `Remove ${s.name}` : `Add ${s.name}`}
-                      className={`grid size-8 place-items-center rounded-full border-2 border-black ${
+                      className={`grid size-8 place-items-center rounded-full border-2 border-black transition active:scale-90 ${
                         on ? "bg-primary text-white" : "bg-transparent"
                       }`}
                     >

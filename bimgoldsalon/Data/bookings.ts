@@ -4,6 +4,7 @@ import type { BookingView } from "@/lib/auth/api";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { minutesUntil } from "@/lib/booking";
+import { readSettings } from "./settings";
 
 export type Result = { ok: true } | { ok: false; error: string };
 const fail = (error: string): Result => ({ ok: false, error });
@@ -180,4 +181,61 @@ export async function cancelBookingForUser(
     return fail("Could not cancel the booking. Please try again.");
   }
   return { ok: true };
+}
+export async function getBookingForUser(
+  userId: string,
+  bookingId: string,
+): Promise<BookingView | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("bookings")
+    .select(SELECT)
+    .eq("id", bookingId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (error) throw new Error("Could not load the booking.");
+  return data ? toView(data as unknown as Row) : null;
+}
+/** For emails: a booking with its service lines, via the admin client */
+export async function getBookingByIdAdmin(bookingId: string) {
+  const db = createAdminClient();
+  const { data } = await db
+    .from("bookings")
+    .select(SELECT)
+    .eq("id", bookingId)
+    .maybeSingle();
+  if (!data) return null;
+  const { data: lines } = await db
+    .from("booking_services")
+    .select("service_name, price, duration_min, sort_order")
+    .eq("booking_id", bookingId)
+    .order("sort_order", { ascending: true });
+  const { cancellationHours } = await readSettings();
+  return {
+    ...toView(data as unknown as Row),
+    cancellationHours,
+    lines: (
+      (lines ?? []) as {
+        service_name: string;
+        price: number | string;
+        duration_min: number;
+      }[]
+    ).map((l) => ({
+      name: l.service_name,
+      price: Number(l.price),
+      durationMin: l.duration_min,
+    })),
+  };
+}
+
+export async function getBookingStatusRecord(
+  bookingId: string,
+): Promise<string | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("bookings")
+    .select("status")
+    .eq("id", bookingId)
+    .maybeSingle();
+  return (data?.status as string | undefined) ?? null;
 }

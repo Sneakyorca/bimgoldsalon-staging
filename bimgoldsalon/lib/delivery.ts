@@ -1,7 +1,4 @@
-import {
-  deliveryOptions,
-  type DeliveryMethodId,
-} from "@/lib/delivery-options.ts";
+import { deliveryOptions, type DeliveryMethodId } from "@/lib/delivery-options";
 
 export type DeliveryAvailability = Record<
   DeliveryMethodId,

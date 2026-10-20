@@ -1,25 +1,37 @@
+import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import SocialLinks from "./Social-Links";
+
+const step = (i: number) => ({ "--i": i }) as CSSProperties;
 
 const Hero = () => (
   <section className="mx-auto w-full max-w-360 px-4">
     <div className="relative overflow-hidden rounded-3xl bg-primary text-white">
       <div className="flex flex-col items-center px-6 pt-4 text-center md:flex-row md:px-8 md:pt-0 md:text-left lg:px-14">
         <div className="z-10 md:w-1/2 md:py-20 lg:py-40">
-          <p className="text-xs md:text-[13px] lg:text-[16px]">
-            BIM - GOLD HAIR &amp; BEAUTY AND SALON
+          <p
+            style={step(0)}
+            className="fade-up text-xs md:text-[13px] lg:text-[16px]"
+          >
+            BIM - GOLD HAIR & BEAUTY SALON
           </p>
-          <h1 className="mt-12 text-2xl font-semibold leading-tight md:mt-4 md:text-2xl lg:mt-6 lg:text-4xl">
+          <h1
+            style={step(1)}
+            className="fade-up mt-12 text-2xl font-semibold leading-tight md:mt-4 md:text-2xl lg:mt-6 lg:text-4xl"
+          >
             Crowning You <br className="hidden md:block" />
             With <br className="md:hidden" />
             Confidence And Beauty
           </h1>
           <Link
             href="/booking"
-            className="mt-6 hidden rounded-full bg-white px-4 py-2 text-sm font-semibold text-primary md:inline-block lg:px-5 lg:py-2.5 lg:text-[16px]"
+            style={step(2)}
+            className="fade-up group mt-6 hidden items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-primary transition hover:shadow-lg md:inline-flex lg:px-5 lg:py-2.5 lg:text-[16px]"
           >
             Book Your Session
+            <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
 
@@ -36,9 +48,10 @@ const Hero = () => (
           </div>
           <Link
             href="/booking"
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-primary md:hidden"
+            className="group absolute bottom-4 left-1/2 inline-flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-primary md:hidden"
           >
             Book Your Session
+            <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
       </div>

@@ -1,10 +1,13 @@
 import "server-only";
 import { listAdminProducts } from "@/Data/adminProducts";
 import { listAdminServices } from "@/Data/adminServices";
+import { listApplications } from "@/Data/applications";
 import { listBlockedDates } from "@/Data/blockedDates";
 import { listAllBookings, listBookingsForUser } from "@/Data/bookings";
 import { listCustomers } from "@/Data/customers";
 import { listAllOrders, listOrdersForUser } from "@/Data/orders";
+import { getSettings } from "@/Data/settings";
+import { listWaitlist } from "@/Data/waitlist";
 import type {
   BookingStatus,
   OrderStatus,
@@ -77,15 +80,27 @@ export async function getOrdersForUser(id: string) {
 }
 
 export async function getAdminSnapshot() {
-  const [customers, bookings, orders, products, services, blocked] =
-    await Promise.all([
-      listCustomers(),
-      listAllBookings(),
-      listAllOrders(),
-      listAdminProducts(),
-      listAdminServices(),
-      listBlockedDates(),
-    ]);
+  const [
+    customers,
+    bookings,
+    orders,
+    products,
+    services,
+    blocked,
+    applications,
+    waitlist,
+    settings,
+  ] = await Promise.all([
+    listCustomers(),
+    listAllBookings(),
+    listAllOrders(),
+    listAdminProducts(),
+    listAdminServices(),
+    listBlockedDates(),
+    listApplications(),
+    listWaitlist(),
+    getSettings(),
+  ]);
 
   const paidOrders = orders.filter(
     (o) => o.paymentStatus === "paid" && o.orderStatus !== "cancelled",
@@ -105,6 +120,9 @@ export async function getAdminSnapshot() {
     bookings,
     orders,
     customers,
+    applications,
+    waitlist,
+    settings,
     products: products.map((product) => ({
       ...product,
       inStock: product.stock > 0,
@@ -113,8 +131,6 @@ export async function getAdminSnapshot() {
       ...serviceItem,
       fromPrice: serviceItem.price,
     })),
-    // The waitlist isn't built yet. The tab shows an empty list until it is.
-    waitlist: [] as { id: string; name: string; serviceName: string }[],
     blocked,
     blockedDates: blocked,
     stats: {

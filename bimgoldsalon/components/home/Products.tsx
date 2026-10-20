@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Reveal from "@/components/ui/Reveal";
 import Carousel from "./Carousel";
 import SectionTitle from "./SectionTitle";
 import ProductCard from "../site/ProductCard";
@@ -20,22 +21,24 @@ const Products = async () => {
         </div>
         <div className="flex justify-end items-center gap-4 text-xs lg:text-sm">
           <span className="rounded-full bg-card px-3 py-1.5">Best Sellers</span>
-          <Link href="/product" className="hover:text-primary">
+          <Link href="/product" className="link-underline hover:text-primary">
             View More
           </Link>
         </div>
       </div>
 
-      <Carousel
-        align="end"
-        itemClass="basis-[calc(51%-8px)] lg:basis-[calc(26%-12px)]"
-        loop
-        arrowControls
-      >
-        {products.map((p) => (
-          <ProductCard key={p.id} product={p} />
-        ))}
-      </Carousel>
+      <Reveal>
+        <Carousel
+          align="end"
+          itemClass="basis-[calc(51%-8px)] lg:basis-[calc(26%-12px)]"
+          loop
+          arrowControls
+        >
+          {products.map((p) => (
+            <ProductCard key={p.id} product={p} />
+          ))}
+        </Carousel>
+      </Reveal>
     </section>
   );
 };

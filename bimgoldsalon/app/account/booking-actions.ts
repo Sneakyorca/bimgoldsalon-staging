@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { cancelBookingForUser } from "@/Data/bookings";
 import { getCurrentUser } from "@/lib/auth/dal";
-import { BUSINESS } from "@/lib/business";
+import { notifyBookingStatus } from "@/lib/email/notify";
+import { getSettings } from "@/Data/settings";
 
 export async function cancelMyBookingAction(
   bookingId: string,
@@ -14,12 +15,10 @@ export async function cancelMyBookingAction(
   const user = await getCurrentUser();
   if (!user) return { ok: false, error: "Please sign in again." };
 
-  const res = await cancelBookingForUser(
-    user.id,
-    id.data,
-    BUSINESS.cancellationHours,
-  );
+  const { cancellationHours } = await getSettings();
+  const res = await cancelBookingForUser(user.id, id.data, cancellationHours);
   if (res.ok) {
+    notifyBookingStatus(id.data, "cancelled", { byCustomer: true });
     revalidatePath("/account");
     revalidatePath("/admin");
     revalidatePath("/booking", "layout");

@@ -325,3 +325,88 @@ select[aria-invalid="true"],
     transition-duration: 0.01ms !important;
   }
 }
+/* ---- Site shell touches ---- */
+@layer base {
+  html {
+    /* jump links and focus scrolling land below the fixed navbar */
+    scroll-padding-top: 7rem;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-primary, #313c6b);
+    outline-offset: 2px;
+  }
+}
+
+/* Underline that grows in on hover, and stays on the current page */
+@utility link-underline {
+  padding-bottom: 2px;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 2px;
+  transition: background-size 200ms ease;
+  &:hover,
+  &[aria-current="page"] {
+    background-size: 100% 2px;
+  }
+}
+
+/* Dropdowns easing in */
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+}
+@utility pop-in {
+  transform-origin: top right;
+  animation: pop-in 150ms ease-out;
+}
+
+/* A stronger header shadow once the page has scrolled (see ScrollState) */
+.site-header {
+  transition: box-shadow 200ms ease;
+}
+html[data-scrolled="true"] .site-header {
+  box-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.25);
+}
+/* Staggered fade-up for lists and sections. Use: className="fade-up" style={{ "--i": index }} */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+@utility fade-up {
+  animation: fade-up 380ms ease-out both;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+/* Scroll reveal (see components/ui/Reveal.tsx) */
+.reveal-out {
+  opacity: 0;
+  transform: translateY(14px);
+}
+.reveal-in {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 500ms ease-out var(--d, 0ms),
+    transform 500ms ease-out var(--d, 0ms);
+}
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+}
+@utility overlay-in {
+  animation: overlay-in 200ms ease-out both;
+}
+@utility dialog-in {
+  animation: dialog-in 260ms ease-out both;
+}

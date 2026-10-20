@@ -8,18 +8,20 @@ import {
   type Limits,
 } from "@/lib/booking";
 import { createClient } from "@/lib/supabase/server";
+import { getSettings } from "./settings";
 
 /** Free start times for every bookable day, for this combination of services */
 export async function getAvailability(
   serviceIds: number[],
 ): Promise<Availability> {
+  const settings = await getSettings();
   const today = salonToday();
-  const dates = dateWindow(today.date);
+  const dates = dateWindow(today.date, settings.windowDays);
   const first = dates[0];
   const last = dates[dates.length - 1];
 
   const supabase = await createClient();
-  const [servicesRes, busyRes, blockedRes, settingsRes] = await Promise.all([
+  const [servicesRes, busyRes, blockedRes] = await Promise.all([
     supabase
       .from("services")
       .select("id, duration_min, capacity")
@@ -30,7 +32,6 @@ export async function getAvailability(
       .select("date")
       .gte("date", first)
       .lte("date", last),
-    supabase.from("salon_settings").select("booking_capacity").maybeSingle(),
   ]);
 
   const services = (servicesRes.data ?? []) as {
@@ -51,7 +52,7 @@ export async function getAvailability(
 
   const duration = services.reduce((n, s) => n + s.duration_min, 0);
   const limits: Limits = {
-    overall: Math.max(1, Number(settingsRes.data?.booking_capacity ?? 10)),
+    overall: Math.max(1, settings.capacity),
     perService: Object.fromEntries(
       services.map((s) => [s.id, s.capacity]),
     ) as Record<number, number>,
@@ -87,6 +88,7 @@ export async function getAvailability(
           serviceIds,
           limits,
           today,
+          settings,
         );
   }
   return { dates, slots };

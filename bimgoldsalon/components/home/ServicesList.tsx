@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { PRESELECT_KEY } from "@/context/BookingContext";
+import { NO_IMAGE } from "@/lib/products";
 import type { Service } from "@/lib/services";
 import Carousel from "./Carousel";
 import SectionTitle from "./SectionTitle";
@@ -39,7 +40,9 @@ const ServiceCard = ({
           alt={name}
           width={400}
           height={260}
-          className="h-64 w-full object-cover md:h-52"
+          className={`h-64 w-full md:h-52 ${
+            image === NO_IMAGE ? "bg-[#f3f1ee] object-contain" : "object-cover"
+          }`}
         />
         <div className="p-5">
           <h3 className="text-[20px] font-semibold md:text-center md:text-[16px]">

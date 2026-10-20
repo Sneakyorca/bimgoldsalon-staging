@@ -10,6 +10,7 @@ import {
   formatLongDate,
   formatRange,
 } from "@/lib/booking";
+import ServiceThumb from "./ServiceThumb";
 import Stars from "./Stars";
 
 type Props = {
@@ -80,11 +81,16 @@ const BookingSummary = ({
                 key={s.id}
                 className="flex items-start justify-between gap-3 py-3"
               >
-                <div>
-                  <p className="text-[16px] font-medium leading-tight">
-                    {s.name}
-                  </p>
-                  <p className="text-[13px] text-gray-600">{s.durationLabel}</p>
+                <div className="flex min-w-0 items-start gap-3">
+                  <ServiceThumb image={s.image} className="size-10" />
+                  <div>
+                    <p className="text-[16px] font-medium leading-tight">
+                      {s.name}
+                    </p>
+                    <p className="text-[13px] text-gray-600">
+                      {s.durationLabel}
+                    </p>
+                  </div>
                 </div>
                 <span className="text-[14px]">{formatGBP(s.fromPrice)}</span>
               </li>
@@ -108,7 +114,7 @@ const BookingSummary = ({
         type="button"
         onClick={onContinue}
         disabled={disabled || loading}
-        className="mx-auto mt-8 flex h-10 w-52 items-center justify-center gap-2 rounded-full bg-primary text-[14px] font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+        className="mx-auto mt-8 flex h-10 w-52 items-center justify-center gap-2 rounded-full bg-primary text-[14px] font-semibold text-white transition enabled:hover:opacity-90 enabled:hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
       >
         {loading ? (
           "Please wait..."

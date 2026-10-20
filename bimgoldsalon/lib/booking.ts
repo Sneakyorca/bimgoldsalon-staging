@@ -13,6 +13,23 @@ export type Busy = { start: number; end: number; serviceIds: number[] };
 /** How many clients can be served at once: salon-wide, and per service */
 export type Limits = { overall: number; perService: Record<number, number> };
 
+/** Opening hours for one day, in minutes from midnight. null means closed. */
+export type DayHours = { open: number; close: number } | null;
+/** The booking rules the salon can change in Admin → Settings */
+export type SalonRules = {
+  /** Index 0 = Sunday … 6 = Saturday */
+  openingHours: DayHours[];
+  slotStep: number;
+  minLeadMin: number;
+  windowDays: number;
+};
+export const DEFAULT_RULES: SalonRules = {
+  openingHours: Array.from({ length: 7 }, (_, d) => openingHours[d] ?? null),
+  slotStep: SLOT_STEP,
+  minLeadMin: MIN_LEAD_MIN,
+  windowDays: BOOKING_WINDOW_DAYS,
+};
+
 /* ---------- dates (as "YYYY-MM-DD") ---------- */
 export const toISODate = (d: Date) =>
   `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -49,9 +66,12 @@ export const salonToday = (now = new Date()) => {
 };
 
 /** The days that can be booked, starting from today */
-export const dateWindow = (todayISO: string = salonToday().date): string[] => {
+export const dateWindow = (
+  todayISO: string = salonToday().date,
+  windowDays: number = DEFAULT_RULES.windowDays,
+): string[] => {
   const [y, m, d] = todayISO.split("-").map(Number);
-  return Array.from({ length: BOOKING_WINDOW_DAYS }, (_, i) =>
+  return Array.from({ length: windowDays }, (_, i) =>
     toISODate(new Date(y, m - 1, d + i)),
   );
 };
@@ -103,13 +123,18 @@ export const candidateSlots = (
   iso: string,
   durationMin: number,
   today = salonToday(),
+  rules: SalonRules = DEFAULT_RULES,
 ): number[] => {
-  const hours = openingHours[fromISODate(iso).getDay()];
+  const hours = rules.openingHours[fromISODate(iso).getDay()];
   if (!hours || durationMin <= 0) return [];
   const isToday = iso === today.date;
   const out: number[] = [];
-  for (let t = hours.open; t + durationMin <= hours.close; t += SLOT_STEP) {
-    if (isToday && t < today.minutes + MIN_LEAD_MIN) continue;
+  for (
+    let t = hours.open;
+    t + durationMin <= hours.close;
+    t += rules.slotStep
+  ) {
+    if (isToday && t < today.minutes + rules.minLeadMin) continue;
     out.push(t);
   }
   return out;
@@ -126,8 +151,9 @@ export const freeSlots = (
   serviceIds: number[],
   limits: Limits,
   today = salonToday(),
+  rules: SalonRules = DEFAULT_RULES,
 ): number[] =>
-  candidateSlots(iso, durationMin, today).filter((t) => {
+  candidateSlots(iso, durationMin, today, rules).filter((t) => {
     const overlapping = busy.filter(
       (b) => t < b.end && t + durationMin > b.start,
     );
@@ -138,6 +164,7 @@ export const freeSlots = (
         (limits.perService[id] ?? 1),
     );
   });
+
 /* ---------- services ---------- */
 export const servicesByIds = (catalog: Service[], ids: string[]): Service[] =>
   catalog.filter((s) => ids.includes(s.id));

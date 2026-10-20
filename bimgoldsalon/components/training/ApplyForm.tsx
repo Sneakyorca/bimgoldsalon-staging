@@ -5,33 +5,13 @@ import { ArrowRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { z } from "zod";
+import { submitApplicationAction } from "@/app/training/actions";
 import PhoneInput from "@/components/common/PhoneInput";
-import { requiredPhone } from "@/lib/schemas/auth";
+import {
+  applicationSchema,
+  type ApplicationValues,
+} from "@/lib/schemas/application";
 import { applicationTypes } from "@/lib/schemas/training";
-
-// Defined here so the phone number uses the same country-code format as the rest of the site
-const trainingSchema = z.object({
-  fullName: z.string().trim().min(2, "Enter your full name"),
-  email: z
-    .string()
-    .trim()
-    .min(1, "Enter your email")
-    .email("Enter a valid email address"),
-  phone: requiredPhone,
-  applicationType: z
-    .string()
-    .refine(
-      (v) => (applicationTypes as readonly string[]).includes(v),
-      "Choose an application type",
-    ),
-  agree: z
-    .boolean()
-    .refine((v) => v === true, {
-      message: "Please accept the terms to continue",
-    }),
-});
-type TrainingValues = z.infer<typeof trainingSchema>;
 
 const inputClass =
   "h-12 w-full rounded-md border border-gray-300 bg-white px-4 text-[16px] outline-none placeholder:text-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 aria-invalid:border-red-600 aria-invalid:ring-2 aria-invalid:ring-red-500/20";
@@ -65,8 +45,8 @@ const ApplyForm = () => {
     reset,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<TrainingValues>({
-    resolver: zodResolver(trainingSchema),
+  } = useForm<ApplicationValues>({
+    resolver: zodResolver(applicationSchema),
     defaultValues: {
       fullName: "",
       email: "",
@@ -79,9 +59,11 @@ const ApplyForm = () => {
   const submit = handleSubmit(async (values) => {
     setSent(false);
     try {
-      // TODO: save the application (planned). It is NOT stored anywhere yet.
-      void values;
-      await new Promise((r) => setTimeout(r, 500));
+      const res = await submitApplicationAction(values);
+      if (!res.ok) {
+        setError("root.server", { message: res.error });
+        return;
+      }
       reset();
       setSent(true);
     } catch {
@@ -93,7 +75,7 @@ const ApplyForm = () => {
 
   return (
     <section className="mx-auto w-full max-w-360 px-5 py-8 lg:px-12 lg:py-12">
-      <div className="mx-auto w-full max-w-140 rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_10px_40px_rgba(0,0,0,0.08)] md:p-8">
+      <div className="fade-up mx-auto w-full max-w-140 rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_10px_40px_rgba(0,0,0,0.08)] md:p-8">
         <h1 className="text-[32px] font-semibold leading-tight text-[#0f1a3d]">
           Apply Now
         </h1>
@@ -201,7 +183,7 @@ const ApplyForm = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex h-14 w-full items-center justify-center gap-2 rounded-md bg-primary text-[15px] font-semibold text-white shadow-md disabled:opacity-60"
+            className="flex h-14 w-full items-center justify-center gap-2 rounded-md bg-primary text-[15px] font-semibold text-white shadow-md transition enabled:hover:opacity-90 enabled:hover:shadow-lg disabled:opacity-60"
           >
             {isSubmitting ? (
               "Submitting..."
@@ -216,7 +198,7 @@ const ApplyForm = () => {
         <hr className="mt-6 border-gray-200" />
         <div aria-live="polite" className="min-h-8 pt-4 text-[14px]">
           {sent && (
-            <p className="font-medium text-green-700">
+            <p className="fade-up font-medium text-green-700">
               Thank you! Your application has been received and we will be in
               touch soon.
             </p>

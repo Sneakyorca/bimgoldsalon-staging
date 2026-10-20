@@ -34,7 +34,7 @@ const ProductActions = ({ product }: { product: Product }) => {
             addToCart(product);
             toast.success("Added to cart");
           }}
-          className="inline-flex h-12 items-center gap-2 rounded-full bg-primary px-8 text-[16px] font-semibold text-white"
+          className="inline-flex h-12 items-center gap-2 rounded-full bg-primary px-8 text-[16px] font-semibold text-white transition hover:opacity-90 hover:shadow-md"
         >
           <ShoppingCart className="size-5" />
           Add to cart

@@ -204,3 +204,26 @@ export async function setOrderPaymentRecord(
   }
   return { ok: true };
 }
+/** For emails: any order by id, using the admin client (no signed-in user needed) */
+export async function getOrderByIdAdmin(
+  orderId: number,
+): Promise<OrderView | null> {
+  const { data } = await createAdminClient()
+    .from("orders")
+    .select(SELECT)
+    .eq("id", orderId)
+    .maybeSingle();
+  return data ? toView(data as unknown as Row) : null;
+}
+
+export async function getOrderStatusRecord(
+  orderId: number,
+): Promise<string | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("orders")
+    .select("order_status")
+    .eq("id", orderId)
+    .maybeSingle();
+  return (data?.order_status as string | undefined) ?? null;
+}

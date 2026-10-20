@@ -4,8 +4,11 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getAvailability } from "@/Data/availability";
 import { createBookingRecord } from "@/Data/bookings";
+import { createBookingCheckout, releaseUnpaidBooking } from "@/Data/payments";
+import { notifyBookingCreated } from "@/lib/email/notify";
 import { getServices } from "@/Data/services";
 import { getCurrentUser } from "@/lib/auth/dal";
+import { getSettings } from "@/Data/settings";
 import {
   candidateSlots,
   dateWindow,
@@ -16,11 +19,19 @@ import {
   type Availability,
 } from "@/lib/booking";
 import type { Service } from "@/lib/services";
+import { stripeEnabled } from "@/lib/stripe";
 
 export type BookingResult =
   | {
       ok: true;
-      booking: { id: string; duration: number; total: number; deposit: number };
+      booking: {
+        id: string;
+        duration: number;
+        total: number;
+        deposit: number;
+        /** Stripe's payment page, when a deposit is due */
+        paymentUrl?: string;
+      };
     }
   | { ok: false; error: string; code?: "login" | "phone" };
 
@@ -80,11 +91,12 @@ export async function createBookingAction(input: {
   const list = chosen as Service[];
   const { duration, price } = totalsFor(list);
 
-  // Opening hours, time steps, lead time and booking window
+  // Opening hours, time steps, lead time and booking window (set in Admin → Settings)
+  const settings = await getSettings();
   const today = salonToday();
   if (
-    !dateWindow(today.date).includes(date) ||
-    !candidateSlots(date, duration, today).includes(time)
+    !dateWindow(today.date, settings.windowDays).includes(date) ||
+    !candidateSlots(date, duration, today, settings).includes(time)
   )
     return {
       ok: false,
@@ -104,8 +116,25 @@ export async function createBookingAction(input: {
 
   revalidatePath("/admin");
   revalidatePath("/account");
-  return {
-    ok: true,
-    booking: { id: res.id, duration, total: price, deposit: depositFor(list) },
-  };
+  const deposit = depositFor(list);
+  const booking = { id: res.id, duration, total: price, deposit };
+
+  // A deposit is due: send the customer to Stripe's payment page
+  if (deposit > 0 && stripeEnabled()) {
+    try {
+      const paymentUrl = await createBookingCheckout(res.id, user.email);
+      return { ok: true, booking: { ...booking, paymentUrl } };
+    } catch (e) {
+      console.error("[createBookingAction] could not open the payment page", e);
+      await releaseUnpaidBooking(res.id); // free the time slot again
+      revalidatePath("/booking", "layout");
+      return {
+        ok: false,
+        error: "We couldn't open the payment page. Please try again.",
+      };
+    }
+  }
+  // Nothing to pay online: the salon confirms it, so tell both sides now
+  notifyBookingCreated(res.id);
+  return { ok: true, booking };
 }

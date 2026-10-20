@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   CalendarOff,
   ClipboardList,
+  GraduationCap,
   LayoutDashboard,
   ListChecks,
   LogOut,
@@ -12,6 +13,7 @@ import {
   Package,
   Pencil,
   Scissors,
+  Settings as SettingsIcon,
   ShoppingCart,
   Users,
   X,
@@ -19,15 +21,21 @@ import {
 } from "lucide-react";
 import { signOutAction } from "@/app/auth/actions";
 import type { AdminSnapshot } from "@/lib/auth/api";
+import { salonToday } from "@/lib/booking";
 import { LOW_STOCK_THRESHOLD, stockLevel } from "@/lib/products";
-import type { AdminSection } from "./AdminNav";
-import BookingsPanel from "./BookingsPanel";
+import type { AdminSection as BaseSection } from "./AdminNav";
+import AnalyticsPanel from "./AnalyticsPanel";
+import ApplicationsPanel from "./ApplicationsPanel";
 import AvailabilityPanel from "./AvailabilityPanel";
-import ServicesPanel from "./ServicesPanel";
-import ProductsPanel, { type StockPreset } from "./ProductsPanel";
+import BookingsPanel from "./BookingsPanel";
 import CustomersPanel from "./CustomersPanel";
 import OrdersPanel from "./OrdersPanel";
-import { fmt } from "./shared";
+import ProductsPanel, { type StockPreset } from "./ProductsPanel";
+import ServicesPanel from "./ServicesPanel";
+import SettingsPanel from "./SettingsPanel";
+import WaitlistPanel from "./WaitlistPanel";
+
+type AdminSection = BaseSection | "applications" | "settings";
 
 const NAV: { id: AdminSection; label: string; icon: LucideIcon }[] = [
   { id: "overview", label: "Analytics", icon: LayoutDashboard },
@@ -38,10 +46,21 @@ const NAV: { id: AdminSection; label: string; icon: LucideIcon }[] = [
   { id: "customers", label: "Customers", icon: Users },
   { id: "products", label: "Products", icon: Package },
   { id: "services", label: "Services", icon: Scissors },
+  { id: "applications", label: "Applications", icon: GraduationCap },
+  { id: "settings", label: "Settings", icon: SettingsIcon },
 ];
 
 // Keeps the sidebar and sticky header clear of your fixed site navbar
 const BELOW_NAVBAR = "top-20 md:top-24 lg:top-28";
+
+const Badge = ({ n, title }: { n: number; title?: string }) => (
+  <span
+    className="ml-auto grid min-w-5 place-items-center rounded-full bg-amber-400 px-1.5 text-[11px] font-bold text-black"
+    title={title}
+  >
+    {n}
+  </span>
+);
 
 export default function AdminConsole({
   adminName,
@@ -60,6 +79,14 @@ export default function AdminConsole({
     .sort((a, b) => a.stock - b.stock);
   const outCount = restock.filter((p) => p.stock <= 0).length;
   const lowCount = restock.length - outCount;
+
+  const today = salonToday().date;
+  const newApplications = data.applications.filter(
+    (a) => a.status === "new",
+  ).length;
+  const upcomingWaitlist = data.waitlist.filter(
+    (w) => w.preferredDate > today,
+  ).length;
 
   useEffect(() => {
     document.body.style.overflow = navOpen ? "hidden" : "";
@@ -92,9 +119,19 @@ export default function AdminConsole({
     .filter(Boolean)
     .join(" · ");
 
+  const badgeFor = (id: AdminSection) => {
+    if (id === "products" && restock.length > 0)
+      return <Badge n={restock.length} title={summary} />;
+    if (id === "applications" && newApplications > 0)
+      return <Badge n={newApplications} title="New applications" />;
+    if (id === "waitlist" && upcomingWaitlist > 0)
+      return <Badge n={upcomingWaitlist} title="People waiting for a day" />;
+    return null;
+  };
+
   return (
     <div className="min-h-[calc(100vh-5rem)] bg-[#f5f5f5] text-foreground md:min-h-[calc(100vh-6rem)] lg:flex lg:min-h-[calc(100vh-7rem)]">
-      {/* Sidebar: fixed drawer on mobile, fixed column on desktop */}
+      {/* Sidebar: fixed drawer on mobile, sticky column on desktop */}
       <aside
         className={`fixed bottom-0 left-0 z-40 w-60 transform overflow-y-auto bg-primary text-white transition-transform duration-200 lg:sticky lg:bottom-auto lg:z-30 lg:h-[calc(100vh-7rem)] lg:shrink-0 lg:self-start lg:translate-x-0 ${BELOW_NAVBAR} ${
           navOpen ? "translate-x-0" : "-translate-x-full"
@@ -128,14 +165,7 @@ export default function AdminConsole({
               >
                 <Icon className="size-5" />
                 {item.label}
-                {item.id === "products" && restock.length > 0 && (
-                  <span
-                    className="ml-auto grid min-w-5 place-items-center rounded-full bg-amber-400 px-1.5 text-[11px] font-bold text-black"
-                    title={summary}
-                  >
-                    {restock.length}
-                  </span>
-                )}
+                {badgeFor(item.id)}
               </button>
             );
           })}
@@ -229,12 +259,7 @@ export default function AdminConsole({
                   </button>
                 </div>
               )}
-              <div className="rounded-lg border border-border bg-white p-6">
-                <h2 className="text-xl font-semibold">Admin overview</h2>
-                <p className="mt-2 text-muted-foreground">
-                  Revenue: {fmt(data.stats.revenue)}
-                </p>
-              </div>
+              <AnalyticsPanel />
             </div>
           )}
 
@@ -247,6 +272,9 @@ export default function AdminConsole({
             />
           )}
           {section === "services" && <ServicesPanel services={data.services} />}
+          {section === "applications" && (
+            <ApplicationsPanel applications={data.applications} />
+          )}
           {section === "orders" && <OrdersPanel orders={data.orders} />}
           {section === "customers" && (
             <CustomersPanel
@@ -258,14 +286,8 @@ export default function AdminConsole({
           {section === "availability" && (
             <AvailabilityPanel dates={data.blockedDates} />
           )}
-          {section === "waitlist" && (
-            <List
-              title="Waitlist"
-              items={data.waitlist.map(
-                (item) => `${item.name} - ${item.serviceName}`,
-              )}
-            />
-          )}
+          {section === "waitlist" && <WaitlistPanel entries={data.waitlist} />}
+          {section === "settings" && <SettingsPanel settings={data.settings} />}
         </main>
       </div>
     </div>
@@ -287,26 +309,4 @@ const StatCard = ({
     <p className="text-2xl font-bold md:text-3xl">{value}</p>
     <p className="mt-1 text-sm text-muted-foreground">{label}</p>
   </div>
-);
-
-const List = ({ title, items }: { title: string; items: string[] }) => (
-  <section>
-    <h2 className="mb-3 text-xl font-semibold">{title}</h2>
-    <div className="space-y-2">
-      {items.length === 0 ? (
-        <p className="rounded-lg border border-border bg-white p-4 text-muted-foreground">
-          Nothing here yet.
-        </p>
-      ) : (
-        items.map((item, i) => (
-          <div
-            key={`${i}-${item}`}
-            className="rounded-lg border border-border bg-white p-4"
-          >
-            {item}
-          </div>
-        ))
-      )}
-    </div>
-  </section>
 );

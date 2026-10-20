@@ -3,14 +3,22 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createOrderRecord } from "@/Data/orders";
-import { deliveryOptions } from "@/lib/delivery-options.ts";
+import { createOrderCheckout, releaseUnpaidOrder } from "@/Data/payments";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { SHIPPING_COUNTRY_CODES } from "@/lib/countries";
 import { deliveryAvailability } from "@/lib/delivery";
+import { deliveryOptions } from "@/lib/delivery-options";
+import { notifyLowStock } from "@/lib/email/notify";
 import { checkoutSchema, type CheckoutValues } from "@/lib/schemas/checkout";
+import { stripeEnabled } from "@/lib/stripe";
 
 export type PlaceOrderResult =
-  | { ok: true; orderId: number }
+  | {
+      ok: true;
+      orderId: number;
+      /** Stripe's payment page. Missing when online payment isn't switched on. */
+      paymentUrl?: string;
+    }
   | { ok: false; error: string; code?: "login" | "stock" };
 
 const itemsSchema = z
@@ -68,13 +76,14 @@ export async function placeOrderAction(
         "That delivery method isn't available right now.",
     };
 
+  const email = v.email.trim().toLowerCase();
   const res = await createOrderRecord({
     userId: user.id,
     items: [...merged].map(([id, qty]) => ({ id, qty })),
     deliveryMethod: option.id,
     deliveryFee: option.fee,
     name: `${v.firstName} ${v.lastName}`.trim(),
-    email: v.email.trim().toLowerCase(),
+    email,
     phone: v.phone,
     country: v.country,
     street: v.street,
@@ -92,5 +101,23 @@ export async function placeOrderAction(
   revalidatePath("/account");
   revalidatePath("/product", "layout"); // stock changed
   revalidatePath("/");
-  return { ok: true, orderId: res.id };
+
+  if (!stripeEnabled()) {
+    notifyLowStock(res.id);
+    return { ok: true, orderId: res.id };
+  }
+
+  try {
+    const paymentUrl = await createOrderCheckout(res.id, email);
+    notifyLowStock(res.id); // stock is reserved now, so tell the salon if it's running low
+    return { ok: true, orderId: res.id, paymentUrl };
+  } catch (e) {
+    console.error("[placeOrderAction] could not open the payment page", e);
+    await releaseUnpaidOrder(res.id); // put the stock back
+    revalidatePath("/product", "layout");
+    return {
+      ok: false,
+      error: "We couldn't open the payment page. Please try again.",
+    };
+  }
 }

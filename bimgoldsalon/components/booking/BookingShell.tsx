@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import BookingSteps from "./BookingSteps";
 import { ArrowLeft, X } from "lucide-react";
 import Link from "next/link";
@@ -46,7 +46,7 @@ const BookingShell = ({
       </Link>
     </div>
     <BookingSteps current={step} locked={locked} />
-    <h1 className="mb-6 mt-5 text-center text-[32px] font-bold leading-tight md:text-[40px]">
+    <h1 className="fade-up mb-6 mt-5 text-center text-[32px] font-bold leading-tight md:text-[40px]">
       {title}
     </h1>
     <div
@@ -61,7 +61,12 @@ const BookingShell = ({
       </div>
 
       {summary && (
-        <aside className="min-w-0 lg:sticky lg:top-32">{summary}</aside>
+        <aside
+          className="fade-up min-w-0 lg:sticky lg:top-32"
+          style={{ "--i": 2 } as CSSProperties}
+        >
+          {summary}
+        </aside>
       )}
     </div>
   </section>

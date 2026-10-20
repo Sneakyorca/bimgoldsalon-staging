@@ -14,7 +14,7 @@ import {
   DEFAULT_DELIVERY,
   deliveryOptions,
   type DeliveryMethodId,
-} from "@/lib/delivery-options.ts";
+} from "@/lib/delivery-options";
 
 export type CartItem = Product & { qty: number };
 

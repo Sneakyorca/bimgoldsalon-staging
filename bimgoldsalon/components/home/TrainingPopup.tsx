@@ -37,7 +37,7 @@ const TrainingPopup = () => {
 
   return (
     <div
-      className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-5"
+      className="overlay-in fixed inset-0 z-50 grid place-items-center bg-black/50 p-5"
       onClick={close}
     >
       <div
@@ -45,7 +45,7 @@ const TrainingPopup = () => {
         aria-modal="true"
         aria-labelledby="training-popup-title"
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-md rounded-2xl bg-white px-6 pb-8 pt-12 text-center shadow-xl md:px-10"
+        className="dialog-in relative w-full max-w-md rounded-2xl bg-white px-6 pb-8 pt-12 text-center shadow-xl md:px-10"
       >
         <button
           type="button"

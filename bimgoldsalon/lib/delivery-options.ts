@@ -13,13 +13,13 @@ export const deliveryOptions: DeliveryOption[] = [
     id: "next-day",
     label: "Next day delivery (after dispatch)",
     fee: 15,
-    note: "UK delivery only. We only dispatch orders on the days we are open, Tuesday – Saturday.",
+    note: "UK delivery only. We dispatch orders on the days we are open, Monday – Saturday.",
   },
   {
     id: "pickup",
     label: "Local pickup",
     fee: 0,
-    note: "Please ensure you pick up your order before 4:30pm Tues-Fri. Pick-up is NOT available Sundays and Mondays.",
+    note: "Collect your order from the salon during opening hours: Monday – Saturday, 9:00 am – 7:30 pm. Pick-up is not available on Sundays.",
     address: "3 Market Walk, Huddersfield HD1 2QA, United Kingdom",
   },
 ];

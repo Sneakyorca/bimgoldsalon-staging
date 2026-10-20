@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import TermsConsent from "@/components/legal/TermsConsent";
 import { useBooking } from "@/context/BookingContext";
 import { policy } from "@/lib/salon";
@@ -33,6 +33,11 @@ const ConfirmStep = () => {
 
     const res = await confirmBooking();
     if (res.ok) {
+      if (res.paymentUrl) {
+        // Stripe's payment page: the button stays disabled while we leave
+        window.location.assign(res.paymentUrl);
+        return;
+      }
       router.push("/booking/confirmed");
       return;
     }
@@ -87,14 +92,17 @@ const ConfirmStep = () => {
       <h2 className="text-[18px] font-semibold">More details</h2>
 
       <div className="mt-4 space-y-5">
-        <section className="rounded-2xl border border-black/60 bg-[#f9f9f9] p-5">
+        <section className="fade-up rounded-2xl border border-black/60 bg-[#f9f9f9] p-5">
           <h3 className="text-[26px] font-semibold leading-tight">
             Cancellation Policy
           </h3>
           <p className="mt-2 text-[16px]">{policy.cancellation}</p>
         </section>
 
-        <section className="rounded-2xl border border-black/60 bg-[#f9f9f9] p-5">
+        <section
+          className="fade-up rounded-2xl border border-black/60 bg-[#f9f9f9] p-5"
+          style={{ "--i": 1 } as CSSProperties}
+        >
           <h3 className="text-[26px] font-semibold leading-tight">
             Important Information
           </h3>

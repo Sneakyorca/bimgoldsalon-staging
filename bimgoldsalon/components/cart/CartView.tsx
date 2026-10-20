@@ -4,6 +4,8 @@ import { X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart, type CartItem } from "@/context/CartContext";
+import type { CSSProperties } from "react";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { formatPrice } from "@/lib/format";
 import CheckoutSteps from "../site/CheckoutSteps";
 import QtyStepper from "../site/QtyStepper";
@@ -47,7 +49,24 @@ const CartView = () => {
   const { ready, cartItems, setQty, remove, subtotal, deliveryFee, total } =
     useCart();
 
-  if (!ready) return <div className="min-h-[50vh]" aria-busy="true" />;
+  if (!ready)
+    return (
+      <section
+        aria-busy="true"
+        aria-label="Loading your cart"
+        className="mx-auto w-full max-w-360 px-5 pb-16 pt-6 lg:px-12"
+      >
+        <Skeleton className="mx-auto my-6 h-10 w-64 md:mx-0 md:mt-12" />
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[minmax(0,1fr)_507px]">
+          <div className="space-y-4">
+            {[0, 1, 2].map((i) => (
+              <Skeleton key={i} className="h-24 w-full rounded-xl md:h-28" />
+            ))}
+          </div>
+          <Skeleton className="h-56 w-full rounded-3xl" />
+        </div>
+      </section>
+    );
 
   return (
     <section className="mx-auto w-full max-w-360 px-5 pb-16 pt-6 lg:px-12">
@@ -82,8 +101,12 @@ const CartView = () => {
             </div>
 
             <ul>
-              {cartItems.map((item) => (
-                <li key={item.id}>
+              {cartItems.map((item, index) => (
+                <li
+                  key={item.id}
+                  className="fade-up"
+                  style={{ "--i": index } as CSSProperties}
+                >
                   {/* mobile row */}
                   <div className="flex gap-4 border-t border-black py-5 md:hidden">
                     <Thumb item={item} className="h-24 w-28 shrink-0" />
@@ -167,7 +190,7 @@ const CartView = () => {
             </dl>
             <Link
               href="/checkout"
-              className="mx-auto mt-8 block w-fit max-w-full rounded-full bg-primary px-8 py-3 text-center text-[18px] font-semibold text-white xl:px-14"
+              className="mx-auto mt-8 block w-fit max-w-full rounded-full bg-primary px-8 py-3 text-center text-[18px] font-semibold text-white transition hover:opacity-90 hover:shadow-lg xl:px-14"
             >
               Proceed To Checkout
             </Link>

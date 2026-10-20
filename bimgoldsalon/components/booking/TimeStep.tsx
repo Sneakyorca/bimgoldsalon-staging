@@ -3,13 +3,20 @@
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 import { getAvailabilityAction } from "@/app/booking/actions";
 import { useBooking } from "@/context/BookingContext";
 import { dayParts, formatTime, type Availability } from "@/lib/booking";
 import { Skeleton } from "@/components/ui/Skeleton";
 import BookingShell from "./BookingShell";
 import BookingSummary from "./BookingSummary";
+import WaitlistCard from "./WaitlistCard";
 
 const TimeStep = () => {
   const router = useRouter();
@@ -182,10 +189,10 @@ const TimeStep = () => {
                   aria-pressed={on}
                   title={isOpen ? undefined : "No availability"}
                   onClick={() => pickDate(d)}
-                  className={`w-20 shrink-0 rounded-lg border p-2 text-center ${
+                  className={`w-20 shrink-0 rounded-lg border p-2 text-center transition ${
                     on
                       ? "border-primary bg-primary text-white"
-                      : "border-black bg-white"
+                      : "border-black bg-white enabled:hover:bg-card"
                   } ${isOpen ? "" : "cursor-not-allowed border-gray-300 text-gray-400"}`}
                 >
                   <span className="block text-[14px] font-medium">
@@ -224,9 +231,16 @@ const TimeStep = () => {
               No times available. Please choose another date.
             </p>
           ) : (
-            <ul className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {slots.map((t) => (
-                <li key={t}>
+            <ul
+              key={activeDate}
+              className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3"
+            >
+              {slots.map((t, i) => (
+                <li
+                  key={t}
+                  className="fade-up"
+                  style={{ "--i": Math.min(i, 10) } as CSSProperties}
+                >
                   <button
                     type="button"
                     aria-pressed={selectedTime === t}
@@ -243,6 +257,11 @@ const TimeStep = () => {
               ))}
             </ul>
           )}
+          <WaitlistCard
+            serviceIds={services.map((s) => s.id)}
+            min={dates[1] ?? dates[0]}
+            max={dates[dates.length - 1]}
+          />
         </>
       )}
     </BookingShell>

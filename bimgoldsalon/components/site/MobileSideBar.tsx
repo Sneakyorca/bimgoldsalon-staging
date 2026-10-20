@@ -12,6 +12,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { navLinks } from "./nav-links";
+import NavLink from "./NavLink";
 
 type MobileSideBarProps = { className?: string };
 
@@ -41,7 +42,7 @@ const MobileSideBar = ({ className }: MobileSideBarProps) => {
               <SheetClose
                 key={l.href}
                 nativeButton={false}
-                render={<Link href={l.href} />}
+                render={<NavLink href={l.href} />}
               >
                 {l.label}
               </SheetClose>

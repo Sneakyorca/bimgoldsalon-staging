@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { setOrderPayment, setOrderStatus } from "@/app/admin/actions";
 import { ORDER_STATUSES, PAYMENT_STATUSES } from "@/lib/statuses";
-import { deliveryOptions } from "@/lib/delivery-options.ts";
+import { deliveryOptions } from "@/lib/delivery-options";
 import type { OrderView } from "@/lib/auth/api";
 import { countryName } from "@/lib/countries";
 import { formatPrice } from "@/lib/format";

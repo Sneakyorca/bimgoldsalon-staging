@@ -25,7 +25,7 @@ const pageList = (current: number, total: number): (number | "…")[] => {
 const Pagination = ({ current, total, onChange }: Props) => {
   if (total <= 1) return null;
   const arrow =
-    "grid size-10 place-items-center rounded-full disabled:opacity-30";
+    "grid size-10 place-items-center rounded-full hover:bg-black/5 disabled:opacity-30 disabled:hover:bg-transparent";
   return (
     <nav
       aria-label="Pagination"
@@ -55,7 +55,7 @@ const Pagination = ({ current, total, onChange }: Props) => {
             className={`grid size-10 place-items-center rounded-full text-[18px] ${
               p === current
                 ? "border-2 border-primary font-semibold text-black"
-                : "text-gray-500 hover:text-black"
+                : "text-gray-500 hover:bg-black/5 hover:text-black"
             }`}
           >
             {p}

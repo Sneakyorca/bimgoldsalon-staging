@@ -9,7 +9,7 @@ import { placeOrderAction } from "@/app/checkout/actions";
 import CountrySelect from "@/components/common/CountrySelect";
 import PhoneInput from "@/components/common/PhoneInput";
 import { useCart } from "@/context/CartContext";
-import { deliveryOptions } from "@/lib/delivery-options.ts";
+import { deliveryOptions } from "@/lib/delivery-options";
 import { SHIPPING_COUNTRY_CODES } from "@/lib/countries";
 import {
   deliveryAvailability,
@@ -84,6 +84,7 @@ const CheckoutView = ({ defaults = {} }: { defaults?: Defaults }) => {
   const [avail, setAvail] = useState<DeliveryAvailability | null>(null);
   const [serverError, setServerError] = useState("");
   const [cartProblem, setCartProblem] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
 
   const {
     register,
@@ -137,6 +138,12 @@ const CheckoutView = ({ defaults = {} }: { defaults?: Defaults }) => {
       }
       setCartProblem(res.code === "stock");
       setServerError(res.error);
+      return;
+    }
+    if (res.paymentUrl) {
+      // Stripe's secure payment page. The cart is cleared once payment succeeds.
+      setRedirecting(true);
+      window.location.assign(res.paymentUrl);
       return;
     }
     router.push(`/checkout/confirmed?id=${res.orderId}`);
@@ -345,8 +352,8 @@ const CheckoutView = ({ defaults = {} }: { defaults?: Defaults }) => {
               Payment
             </h2>
             <p className="mt-3 text-[16px] md:text-[18px]">
-              We&apos;ll get in touch to arrange payment once your order is
-              placed.
+              You&apos;ll pay securely on Stripe&apos;s payment page. We never
+              see your card details.
             </p>
             <p className="mt-5 text-[14px] leading-snug">
               Your personal data will be used to process your order, support
@@ -390,10 +397,12 @@ const CheckoutView = ({ defaults = {} }: { defaults?: Defaults }) => {
 
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || redirecting}
               className="mx-auto mt-6 block h-12 w-full max-w-90 rounded-full bg-primary text-[18px] font-semibold text-white disabled:opacity-60"
             >
-              {isSubmitting ? "Please wait..." : "Place order"}
+              {isSubmitting || redirecting
+                ? "Taking you to payment..."
+                : "Place order & pay"}
             </button>
             {serverError && (
               <p

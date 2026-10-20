@@ -4,6 +4,7 @@ import { User } from "lucide-react";
 import CartMenu from "./CartMenu";
 import MobileSideBar from "./MobileSideBar";
 import { navLinks } from "./nav-links";
+import NavLink from "./NavLink";
 
 const outlined =
   "rounded-md bg-primary px-3 py-2 text-[12px] font-semibold uppercase whitespace-nowrap text-white transition hover:opacity-90 shadow-[3px_3px_1px_0px_#000000] hover:shadow-[0px_0px_0px_0px_#000000] lg:px-5 lg:py-2.5 lg:text-[16px] lg:shadow-[4px_4px_1px_0px_#000000]";
@@ -15,7 +16,7 @@ const heights = "h-20 md:h-24 lg:h-28";
 const Navbar = () => {
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-40 bg-background shadow-[0_1px_0_0_rgba(0,0,0,0.06)]">
+      <header className="site-header fixed inset-x-0 top-0 z-40 bg-background shadow-[0_1px_0_0_rgba(0,0,0,0.06)]">
         <nav
           className={`mx-auto flex w-full max-w-360 items-center justify-between gap-3 px-5 md:px-6 lg:gap-4 lg:px-12 ${heights}`}
         >
@@ -26,12 +27,9 @@ const Navbar = () => {
           <ul className="hidden items-center gap-5 text-[14px] font-medium uppercase md:flex lg:gap-10 lg:text-[16px]">
             {navLinks.map((l) => (
               <li key={l.href}>
-                <Link
-                  href={l.href}
-                  className="whitespace-nowrap transition hover:text-primary/70"
-                >
+                <NavLink href={l.href} className="whitespace-nowrap">
                   {l.label}
-                </Link>
+                </NavLink>
               </li>
             ))}
           </ul>

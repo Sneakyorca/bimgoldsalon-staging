@@ -32,7 +32,7 @@ export type Confirmed = {
 type Draft = { serviceIds: string[]; date: string | null; time: number | null };
 
 export type ConfirmResult =
-  | { ok: true }
+  | { ok: true; paymentUrl?: string }
   | { ok: false; error: string; code?: "login" | "phone" };
 const STORAGE_KEY = "bimgold_booking_v2";
 /** The homepage service cards leave a service id here for the booking page to pick up */
@@ -228,7 +228,7 @@ export const BookingProvider = ({ children }: { children: ReactNode }) => {
         total: res.booking.total,
         deposit: res.booking.deposit,
       });
-      return { ok: true };
+      return { ok: true, paymentUrl: res.booking.paymentUrl };
     } catch {
       return {
         ok: false,

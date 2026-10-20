@@ -5,13 +5,14 @@ import "@fontsource/poppins/500.css";
 import "@fontsource/poppins/600.css";
 import "@fontsource/poppins/700.css";
 import "./globals.css";
-import NextTopLoader from "nextjs-toploader";
+import NavProgress from "@/components/site/NavProgress";
 import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
 import Navbar from "@/components/site/Navbar";
 import Footer from "@/components/site/Footer";
 import { CartProvider } from "@/context/CartContext";
 import { BookingProvider } from "@/context/BookingContext";
+import ScrollState from "@/components/site/ScrollState";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const jakarta = Plus_Jakarta_Sans({
@@ -21,7 +22,7 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "BIM - GOLD HAIR & BEAUTY AND SALON",
+  title: "BIM - GOLD HAIR & BEAUTY SALON",
   description: "Crowning You With Confidence And Beauty",
   icons: {
     icon: "/favicon/favicon.ico",
@@ -37,12 +38,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={cn("h-full", "antialiased", inter.variable, jakarta.variable)}
     >
       <body className="min-h-full flex flex-col">
-        <NextTopLoader
-          color="#313c6b"
-          height={3}
-          showSpinner={false}
-          shadow={false}
-        />
+        {" "}
+        <NavProgress />
+        <ScrollState />
         <CartProvider>
           <BookingProvider>
             <Navbar />
