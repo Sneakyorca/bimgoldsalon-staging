@@ -7,7 +7,7 @@ import { createOrderCheckout, releaseUnpaidOrder } from "@/Data/payments";
 import { getCurrentUser } from "@/lib/auth/dal";
 import { SHIPPING_COUNTRY_CODES } from "@/lib/countries";
 import { deliveryAvailability } from "@/lib/delivery";
-import { deliveryOptions } from "@/lib/delivery-options";
+import { deliveryFeeFor, deliveryOptions } from "@/lib/delivery-options";
 import { notifyLowStock } from "@/lib/email/notify";
 import { checkoutSchema, type CheckoutValues } from "@/lib/schemas/checkout";
 import { stripeEnabled } from "@/lib/stripe";
@@ -64,6 +64,7 @@ export async function placeOrderAction(
   for (const i of itemsParsed.data)
     merged.set(i.id, Math.min(99, (merged.get(i.id) ?? 0) + i.qty));
 
+  const itemCount = [...merged.values()].reduce((n, q) => n + q, 0);
   // The fee comes from our own list, never from the browser
   const option = deliveryOptions.find((o) => o.id === deliveryMethod);
   if (!option) return { ok: false, error: "Choose a delivery method." };
@@ -81,7 +82,7 @@ export async function placeOrderAction(
     userId: user.id,
     items: [...merged].map(([id, qty]) => ({ id, qty })),
     deliveryMethod: option.id,
-    deliveryFee: option.fee,
+    deliveryFee: deliveryFeeFor(option, itemCount),
     name: `${v.firstName} ${v.lastName}`.trim(),
     email,
     phone: v.phone,

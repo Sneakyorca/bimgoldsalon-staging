@@ -9,7 +9,7 @@ import { countryName } from "@/lib/countries";
 import { formatPrice } from "@/lib/format";
 
 export const metadata: Metadata = {
-  title: "Order received | BIM-GOLD",
+  title: "Order received",
   robots: { index: false },
 };
 

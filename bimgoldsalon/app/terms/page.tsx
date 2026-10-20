@@ -3,7 +3,7 @@ import LegalPage from "@/components/legal/LegalPage";
 import { policy } from "@/lib/salon";
 import { BUSINESS } from "@/lib/business";
 
-export const metadata: Metadata = { title: "Terms & Conditions | BIM-GOLD" };
+export const metadata: Metadata = { title: "Terms & Conditions" };
 
 export default function TermsPage() {
   return (
@@ -12,10 +12,20 @@ export default function TermsPage() {
         <h2>1. About us</h2>
         <p>
           This website is run by {BUSINESS.legalName}, trading as{" "}
-          {BUSINESS.name}, {BUSINESS.address}. You can contact us at{" "}
-          {BUSINESS.email} or {BUSINESS.phone}. By using this website, creating
-          an account, placing an order or booking an appointment, you agree to
-          these terms.
+          {BUSINESS.name},{" "}
+          <a
+            href="https://www.google.com/maps/search/?api=1&query=3+Market+Walk+Huddersfield+HD1+2QA"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="no-underline"
+          >
+            {BUSINESS.address}
+          </a>
+          . You can contact us at{" "}
+          <a href={`mailto:${BUSINESS.email}`}>{BUSINESS.email}</a> or{" "}
+          <a href={`tel:${BUSINESS.phone}`}>{BUSINESS.phone}</a>. By using this
+          website, creating an account, placing an order or booking an
+          appointment, you agree to these terms.
         </p>
       </section>
 
@@ -160,8 +170,18 @@ export default function TermsPage() {
       <section>
         <h2>11. Contact</h2>
         <p>
-          Questions about these terms? Contact {BUSINESS.email} or visit us at{" "}
-          {BUSINESS.address}.
+          Questions about these terms? Contact{" "}
+          <a href={`mailto:${BUSINESS.email}`}>{BUSINESS.email}</a> or visit us
+          at{" "}
+          <a
+            href="https://www.google.com/maps/search/?api=1&query=3+Market+Walk+Huddersfield+HD1+2QA"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="no-underline"
+          >
+            {BUSINESS.address}
+          </a>
+          .
         </p>
       </section>
     </LegalPage>

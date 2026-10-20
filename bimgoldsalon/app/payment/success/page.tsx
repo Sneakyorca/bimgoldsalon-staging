@@ -21,7 +21,7 @@ import { stripe } from "@/lib/stripe";
 import CheckoutSteps from "@/components/site/CheckoutSteps";
 
 export const metadata: Metadata = {
-  title: "Payment | BIM-GOLD",
+  title: "Payment",
   robots: { index: false },
 };
 

@@ -12,7 +12,6 @@ import { getCartProductsAction } from "@/app/cart/actions";
 import type { Product } from "@/lib/products";
 import {
   DEFAULT_DELIVERY,
-  deliveryOptions,
   type DeliveryMethodId,
 } from "@/lib/delivery-options";
 
@@ -38,8 +37,6 @@ type CartContextValue = {
   subtotal: number;
   deliveryMethod: DeliveryMethodId;
   setDeliveryMethod: (id: DeliveryMethodId) => void;
-  deliveryFee: number;
-  total: number;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -138,11 +135,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const clearCart = () => setCartItems([]);
 
   const subtotal = round2(cartItems.reduce((s, i) => s + i.price * i.qty, 0));
-  const deliveryFee =
-    cartItems.length === 0
-      ? 0
-      : (deliveryOptions.find((o) => o.id === deliveryMethod)?.fee ?? 0);
-  const total = round2(subtotal + deliveryFee);
 
   return (
     <CartContext.Provider
@@ -157,8 +149,6 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         subtotal,
         deliveryMethod,
         setDeliveryMethod,
-        deliveryFee,
-        total,
       }}
     >
       {children}

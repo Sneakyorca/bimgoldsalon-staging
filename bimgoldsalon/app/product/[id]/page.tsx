@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ProductActions from "@/components/product/ProductActions";
@@ -10,13 +11,31 @@ import {
 } from "@/Data/products";
 import { formatPrice } from "@/lib/format";
 import { LOW_STOCK_THRESHOLD, NO_IMAGE } from "@/lib/products";
+import { SITE_URL } from "@/lib/seo";
 
 type Props = { params: Promise<{ id: string }> };
 
-export const generateMetadata = async ({ params }: Props) => {
+export const generateMetadata = async ({
+  params,
+}: Props): Promise<Metadata> => {
   const product = await getProductById((await params).id);
+  if (!product) return { title: "Product not found", robots: { index: false } };
+
+  const description =
+    product.blurb.replace(/\s+/g, " ").trim().slice(0, 155) ||
+    `Buy ${product.name} from BIM-GOLD Hair & Beauty Salon.`;
+
   return {
-    title: product ? `${product.name} | BIM-GOLD` : "Product | BIM-GOLD",
+    title: product.name,
+    description,
+    alternates: { canonical: `/product/${product.id}` },
+    openGraph: {
+      title: product.name,
+      description,
+      siteName: "BIM-GOLD Hair & Beauty Salon",
+      locale: "en_GB",
+      images: [product.image],
+    },
   };
 };
 
@@ -33,8 +52,32 @@ const ProductDetailPage = async ({ params }: Props) => {
   );
   const images = photos.length > 0 ? photos : [NO_IMAGE];
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.blurb,
+    category: product.category,
+    image: images.map((u) => (u.startsWith("http") ? u : `${SITE_URL}${u}`)),
+    offers: {
+      "@type": "Offer",
+      url: `${SITE_URL}/product/${product.id}`,
+      priceCurrency: "GBP",
+      price: product.price.toFixed(2),
+      availability: product.inStock
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+    },
+  };
+
   return (
     <section className="mx-auto w-full max-w-360 px-5 pb-16 pt-6 lg:px-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
       <nav aria-label="Breadcrumb" className="text-[14px] text-gray-600">
         <Link href="/product" className="hover:text-primary">
           Shop

@@ -3,7 +3,9 @@ export type DeliveryMethodId = "next-day" | "pickup";
 export type DeliveryOption = {
   id: DeliveryMethodId;
   label: string;
+  /** Fee in £. Charged once, or for every item when perItem is true. */
   fee: number;
+  perItem?: boolean;
   note: string;
   address?: string;
 };
@@ -12,8 +14,9 @@ export const deliveryOptions: DeliveryOption[] = [
   {
     id: "next-day",
     label: "Next day delivery (after dispatch)",
-    fee: 15,
-    note: "UK delivery only. We dispatch orders on the days we are open, Monday – Saturday.",
+    fee: 4.99,
+    perItem: true,
+    note: "£4.99 for each item. UK delivery only. We dispatch orders on the days we are open, Monday – Saturday.",
   },
   {
     id: "pickup",
@@ -25,3 +28,7 @@ export const deliveryOptions: DeliveryOption[] = [
 ];
 
 export const DEFAULT_DELIVERY: DeliveryMethodId = "next-day";
+
+/** The delivery fee for a given number of items (units, not product lines) */
+export const deliveryFeeFor = (opt: DeliveryOption, itemCount: number) =>
+  Math.round(opt.fee * (opt.perItem ? Math.max(1, itemCount) : 1) * 100) / 100;

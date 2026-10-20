@@ -46,8 +46,7 @@ const rowCols =
   "md:grid-cols-[minmax(0,1fr)_90px_110px_100px] lg:grid-cols-[minmax(0,1fr)_80px_104px_100px] xl:grid-cols-[minmax(0,1fr)_100px_110px_110px]";
 
 const CartView = () => {
-  const { ready, cartItems, setQty, remove, subtotal, deliveryFee, total } =
-    useCart();
+  const { ready, cartItems, setQty, remove, subtotal } = useCart();
 
   if (!ready)
     return (
@@ -179,12 +178,14 @@ const CartView = () => {
               </div>
               <div className="flex justify-between border-b border-black/30 pb-4">
                 <dt>Shipping</dt>
-                <dd>{deliveryFee === 0 ? "Free" : formatPrice(deliveryFee)}</dd>
+                <dd className="text-right text-[14px] md:text-[16px]">
+                  Calculated at checkout
+                </dd>
               </div>
               <div className="flex items-center justify-between">
-                <dt>Total</dt>
+                <dt>Total (before delivery)</dt>
                 <dd className="text-[22px] font-semibold md:text-[24px]">
-                  {formatPrice(total)}
+                  {formatPrice(subtotal)}
                 </dd>
               </div>
             </dl>

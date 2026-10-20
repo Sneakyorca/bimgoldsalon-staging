@@ -4,9 +4,10 @@ import Link from "next/link";
 import Reveal from "@/components/ui/Reveal";
 import { getSettings } from "@/Data/settings";
 import { hoursSummary } from "@/lib/hours";
+import LocalBusinessJsonLd from "@/components/site/LocalBusinessJsonLd";
 
 export const metadata: Metadata = {
-  title: "About | BIM-GOLD Hair & Beauty Salon",
+  title: "About",
   description:
     "Your friendly hair and beauty salon at 3 Market Walk in the heart of Huddersfield.",
 };
@@ -32,6 +33,7 @@ export default async function AboutPage() {
 
   return (
     <main className="mx-auto w-full max-w-360 px-5 pb-16 pt-8 lg:px-12 lg:pt-12">
+      <LocalBusinessJsonLd />
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-16">
         <Reveal>
           <p className="text-[18px] font-medium uppercase leading-relaxed tracking-[0.3em] md:text-[24px]">

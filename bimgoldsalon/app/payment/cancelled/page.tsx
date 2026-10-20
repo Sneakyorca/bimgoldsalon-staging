@@ -6,7 +6,7 @@ import { abandonBookingPayment, abandonOrderPayment } from "@/Data/payments";
 import { requireUser } from "@/lib/auth/dal";
 
 export const metadata: Metadata = {
-  title: "Payment cancelled | BIM-GOLD",
+  title: "Payment cancelled",
   robots: { index: false },
 };
 

@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { formatDuration } from "@/lib/booking";
 import { createClient } from "@/lib/supabase/server";
+import { NO_IMAGE } from "@/lib/products";
 import type { Service } from "@/lib/services";
 
 const COLUMNS =
@@ -24,7 +25,7 @@ const toService = (r: Row): Service => ({
   id: String(r.id),
   name: r.name,
   category: r.category,
-  image: r.image_url || "/images/gallery-1.jpg",
+  image: r.image_url || NO_IMAGE,
   featured: r.featured,
   durationMin: r.duration_min,
   durationLabel: r.duration_label || formatDuration(r.duration_min),

@@ -7,10 +7,12 @@ import SectionSkeleton from "@/components/home/SectionSkeleton";
 import Services from "@/components/home/Services";
 import Testimonials from "@/components/home/Testimonials";
 import TrainingPopup from "@/components/home/TrainingPopup";
+import LocalBusinessJsonLd from "@/components/site/LocalBusinessJsonLd";
 
 export default function Home() {
   return (
     <main>
+      <LocalBusinessJsonLd />
       <TrainingPopup />
       <Hero />
       <About />

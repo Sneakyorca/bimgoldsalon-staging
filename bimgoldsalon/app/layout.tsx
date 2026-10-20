@@ -13,6 +13,7 @@ import Footer from "@/components/site/Footer";
 import { CartProvider } from "@/context/CartContext";
 import { BookingProvider } from "@/context/BookingContext";
 import ScrollState from "@/components/site/ScrollState";
+import { DEFAULT_DESCRIPTION, SITE_URL } from "@/lib/seo";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const jakarta = Plus_Jakarta_Sans({
@@ -22,13 +23,26 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "BIM - GOLD HAIR & BEAUTY SALON",
-  description: "Crowning You With Confidence And Beauty",
+  metadataBase: new URL(SITE_URL),
+
+  title: {
+    default:
+      "BIM-GOLD Hair & Beauty Salon | Braids & Hair Salon in Huddersfield",
+    template: "%s | BIM-GOLD",
+  },
+  description: DEFAULT_DESCRIPTION,
+  openGraph: {
+    type: "website",
+    siteName: "BIM-GOLD Hair & Beauty Salon",
+    locale: "en_GB",
+    images: ["/images/hero.png"],
+  },
   icons: {
     icon: "/favicon/favicon.ico",
     apple: "/favicon/apple-touch-icon.png",
   },
   manifest: "/favicon/site.webmanifest",
+  verification: { google: process.env.GOOGLE_SITE_VERIFICATION },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -9,7 +9,7 @@ import { placeOrderAction } from "@/app/checkout/actions";
 import CountrySelect from "@/components/common/CountrySelect";
 import PhoneInput from "@/components/common/PhoneInput";
 import { useCart } from "@/context/CartContext";
-import { deliveryOptions } from "@/lib/delivery-options";
+import { deliveryFeeFor, deliveryOptions } from "@/lib/delivery-options";
 import { SHIPPING_COUNTRY_CODES } from "@/lib/countries";
 import {
   deliveryAvailability,
@@ -74,8 +74,6 @@ const CheckoutView = ({ defaults = {} }: { defaults?: Defaults }) => {
     ready,
     cartItems,
     subtotal,
-    deliveryFee,
-    total,
     deliveryMethod,
     setDeliveryMethod,
     clearCart,
@@ -121,7 +119,10 @@ const CheckoutView = ({ defaults = {} }: { defaults?: Defaults }) => {
 
   const selected =
     deliveryOptions.find((o) => o.id === deliveryMethod) ?? deliveryOptions[0];
-  const feeText = deliveryFee === 0 ? "Free" : formatPrice(deliveryFee);
+  const itemCount = cartItems.reduce((n, i) => n + i.qty, 0);
+  const fee = deliveryFeeFor(selected, itemCount);
+  const orderTotal = subtotal + fee;
+  const feeText = fee === 0 ? "Free" : formatPrice(fee);
 
   const placeOrder = handleSubmit(async (values) => {
     setServerError("");
@@ -293,7 +294,7 @@ const CheckoutView = ({ defaults = {} }: { defaults?: Defaults }) => {
 
             <Row label="Subtotal" value={formatPrice(subtotal)} />
             <Row label={selected.label} value={feeText} />
-            <Row label="Estimated total" value={formatPrice(total)} big />
+            <Row label="Estimated total" value={formatPrice(orderTotal)} big />
 
             <fieldset className="mt-6 space-y-5">
               <legend className="sr-only">Delivery method</legend>
@@ -318,7 +319,9 @@ const CheckoutView = ({ defaults = {} }: { defaults?: Defaults }) => {
                       <span className="flex justify-between gap-3 text-[16px] font-semibold">
                         <span>{opt.label}</span>
                         <span className="shrink-0">
-                          {opt.fee === 0 ? "Free" : formatPrice(opt.fee)}
+                          {opt.fee === 0
+                            ? "Free"
+                            : `${formatPrice(opt.fee)}${opt.perItem ? " per item" : ""}`}
                         </span>
                       </span>
                       <span className="mt-1 block text-[14px] leading-snug text-gray-700">
@@ -342,7 +345,7 @@ const CheckoutView = ({ defaults = {} }: { defaults?: Defaults }) => {
 
             <div className="mt-6 flex items-center justify-between border-t border-black/30 pt-5 text-[20px] font-semibold">
               <span>Estimated total</span>
-              <span>{formatPrice(total)}</span>
+              <span>{formatPrice(orderTotal)}</span>
             </div>
           </div>
 

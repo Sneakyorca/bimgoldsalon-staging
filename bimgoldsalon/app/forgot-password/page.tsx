@@ -1,6 +1,6 @@
 import AuthCardLayout from "@/components/auth/AuthCardLayout";
 import ForgotPasswordClient from "@/components/auth/ForgotPasswordClient";
-
+export const metadata = { robots: { index: false } };
 const ForgotPasswordPage = () => (
   <AuthCardLayout
     heading="No worries!"

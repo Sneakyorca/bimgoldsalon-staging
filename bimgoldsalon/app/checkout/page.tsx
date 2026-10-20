@@ -4,7 +4,7 @@ import { requireUser } from "@/lib/auth/dal";
 import { toE164 } from "@/lib/countries";
 
 export const metadata: Metadata = {
-  title: "Checkout | BIM-GOLD",
+  title: "Checkout",
   robots: { index: false },
 };
 

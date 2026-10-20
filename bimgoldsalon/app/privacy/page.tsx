@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import LegalPage from "@/components/legal/LegalPage";
 import { BUSINESS } from "@/lib/business";
 
-export const metadata: Metadata = { title: "Privacy Policy | BIM-GOLD" };
+export const metadata: Metadata = { title: "Privacy Policy" };
 
 export default function PrivacyPage() {
   return (
@@ -12,7 +12,8 @@ export default function PrivacyPage() {
         <p>
           {BUSINESS.legalName}, trading as {BUSINESS.name} ({BUSINESS.address}),
           is responsible for your personal information. Contact us about
-          anything in this policy at {BUSINESS.email}.
+          anything in this policy at{" "}
+          <a href={`mailto:${BUSINESS.email}`}>{BUSINESS.email}</a>.
         </p>
       </section>
 
@@ -92,8 +93,9 @@ export default function PrivacyPage() {
         <p>
           You can ask to see, correct, delete or receive a copy of your
           information, and to object to or restrict how we use it. Email{" "}
-          {BUSINESS.email}. If you are unhappy with how we handle your data, you
-          can complain to the Information Commissioner&apos;s Office at{" "}
+          <a href={`mailto:${BUSINESS.email}`}>{BUSINESS.email}</a>. If you are
+          unhappy with how we handle your data, you can complain to the
+          Information Commissioner&apos;s Office at{" "}
           <a href="https://ico.org.uk" rel="noreferrer">
             ico.org.uk
           </a>
