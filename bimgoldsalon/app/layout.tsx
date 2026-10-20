@@ -42,6 +42,7 @@ export const metadata: Metadata = {
     apple: "/favicon/apple-touch-icon.png",
   },
   manifest: "/favicon/site.webmanifest",
+  twitter: { card: "summary_large_image" },
   verification: { google: process.env.GOOGLE_SITE_VERIFICATION },
 };
 
