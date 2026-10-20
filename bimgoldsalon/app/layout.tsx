@@ -35,7 +35,6 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "BIM-GOLD Hair & Beauty Salon",
     locale: "en_GB",
-    images: ["/images/hero.png"],
   },
   icons: {
     icon: "/favicon/favicon.ico",

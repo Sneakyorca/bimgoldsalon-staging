@@ -15,6 +15,7 @@ const ServiceThumb = ({
       alt=""
       width={160}
       height={160}
+      sizes="80px"
       className={`${className} shrink-0 rounded-xl ${
         src === NO_IMAGE ? "bg-[#f3f1ee] object-contain" : "object-cover"
       }`}
