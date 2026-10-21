@@ -23,7 +23,7 @@ export default function StatusPage({
   actions = [],
 }: Props) {
   return (
-    <main className="mx-auto flex min-h-[60vh] w-full max-w-160 flex-col items-center justify-center px-5 py-16 text-center">
+     <div className="mx-auto flex min-h-[60vh] w-full max-w-160 flex-col items-center justify-center px-5 py-16 text-center">
       <div className="grid size-18 place-items-center rounded-full bg-card text-primary">
         {icon ?? <span className="text-xl font-bold">{code}</span>}
       </div>
@@ -42,6 +42,6 @@ export default function StatusPage({
           </Link>
         ))}
       </div>
-    </main>
+    </div>
   );
 }

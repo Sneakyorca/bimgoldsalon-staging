@@ -14,7 +14,7 @@ type Props = {
  * form on the left and rounded blue panel on the right on desktop.
  */
 const AuthCardLayout = ({ heading, subheading, backTo, children }: Props) => (
-  <main className="mx-auto w-full max-w-md md:flex md:min-h-185 md:max-w-none md:overflow-hidden">
+  <div className="mx-auto w-full max-w-md md:flex md:min-h-185 md:max-w-none md:overflow-hidden">
     <div className="bg-primary px-6 pb-24 pt-20 text-center text-white md:order-2 md:flex md:w-[40%] md:flex-col md:items-center md:justify-center md:rounded-l-[200px] md:p-12">
       <p className="mx-auto max-w-95 text-[35px] font-semibold leading-tight md:text-[40px]">
         {heading}
@@ -38,7 +38,7 @@ const AuthCardLayout = ({ heading, subheading, backTo, children }: Props) => (
         {backTo.label}
       </Link>
     </p>
-  </main>
+  </div>
 );
 
 export default AuthCardLayout;

@@ -53,7 +53,7 @@ const ServiceCard = ({
           </p>
           <div className="mt-2 space-y-1 text-[16px] md:text-center md:text-[10px] md:leading-snug">
             {details.map(([label, text]) => (
-              <p key={label}>
+              <p key={label} className="line-clamp-4">
                 <span className="font-semibold">{label}:</span> {text}
               </p>
             ))}

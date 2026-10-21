@@ -218,7 +218,7 @@ export default function AdminConsole({
           </div>
         </header>
 
-        <main className="space-y-6 px-4 py-6 md:px-8">
+        <div className="space-y-6 px-4 py-6 md:px-8">
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <StatCard label="Customers" value={data.customers.length} />
             <StatCard label="Bookings" value={data.bookings.length} />
@@ -288,7 +288,7 @@ export default function AdminConsole({
           )}
           {section === "waitlist" && <WaitlistPanel entries={data.waitlist} />}
           {section === "settings" && <SettingsPanel settings={data.settings} />}
-        </main>
+        </div>
       </div>
     </div>
   );

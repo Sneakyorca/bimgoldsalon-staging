@@ -11,7 +11,7 @@ import LocalBusinessJsonLd from "@/components/site/LocalBusinessJsonLd";
 
 export default function Home() {
   return (
-    <main>
+    <div>
       <LocalBusinessJsonLd />
       <TrainingPopup />
       <Hero />
@@ -24,6 +24,6 @@ export default function Home() {
       </Suspense>
       <Testimonials />
       <Map />
-    </main>
+    </div>
   );
 }

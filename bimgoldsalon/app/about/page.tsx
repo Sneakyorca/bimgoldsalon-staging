@@ -32,7 +32,7 @@ export default async function AboutPage() {
   const hours = hoursSummary(openingHours);
 
   return (
-    <main className="mx-auto w-full max-w-360 px-5 pb-16 pt-8 lg:px-12 lg:pt-12">
+    <div className="mx-auto w-full max-w-360 px-5 pb-16 pt-8 lg:px-12 lg:pt-12">
       <LocalBusinessJsonLd />
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-16">
         <Reveal>
@@ -112,6 +112,6 @@ export default async function AboutPage() {
           </li>
         ))}
       </ul>
-    </main>
+    </div>
   );
 }

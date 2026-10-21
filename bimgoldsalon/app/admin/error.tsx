@@ -6,7 +6,7 @@ export default function Error({
   reset: () => void;
 }) {
   return (
-    <main className="grid min-h-[60vh] place-items-center p-8 text-center">
+    <div className="grid min-h-[60vh] place-items-center p-8 text-center">
       <div>
         <h1 className="text-2xl font-semibold">Admin page error</h1>
         <button
@@ -17,6 +17,6 @@ export default function Error({
           Try again
         </button>
       </div>
-    </main>
+    </div>
   );
 }

@@ -120,7 +120,7 @@ const ServicesStep = () => {
                   </div>
                   <div className="mt-3 space-y-1 text-[16px] leading-snug">
                     {s.details.map(([label, text]) => (
-                      <p key={label}>
+                      <p key={label} className="line-clamp-4">
                         <span className="font-semibold">{label}</span>: {text}
                       </p>
                     ))}

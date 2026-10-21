@@ -61,7 +61,7 @@ const AuthShell = ({ initialMode = "signin", onSignIn, onSignUp }: Props) => {
   };
 
   return (
-    <main className="mx-auto w-full max-w-md md:max-w-none mb-12">
+    <div className="mx-auto w-full max-w-md md:max-w-none mb-12">
       <div className="relative md:min-h-179.5 md:overflow-hidden">
         {/* Blue panel: header on mobile, rounded sliding panel on desktop */}
         <div
@@ -139,7 +139,7 @@ const AuthShell = ({ initialMode = "signin", onSignIn, onSignUp }: Props) => {
           {COPY[mode].switchLabel}
         </button>
       </p>
-    </main>
+    </div>
   );
 };
 

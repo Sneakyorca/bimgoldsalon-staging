@@ -32,7 +32,7 @@ type Props = { user: PublicUser; bookings: BookingView[]; orders: OrderView[] };
 
 export default function CustomerDashboard({ user, bookings, orders }: Props) {
   return (
-    <main className="mx-auto w-full max-w-360 px-5 pb-16 pt-4 lg:px-12">
+    <div className="mx-auto w-full max-w-360 px-5 pb-16 pt-4 lg:px-12">
       <p className="text-[14px] font-semibold uppercase tracking-wide text-muted-foreground">
         My account
       </p>
@@ -144,6 +144,6 @@ export default function CustomerDashboard({ user, bookings, orders }: Props) {
           </ul>
         )}
       </section>
-    </main>
+    </div>
   );
 }

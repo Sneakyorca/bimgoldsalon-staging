@@ -22,7 +22,7 @@ export const deliveryOptions: DeliveryOption[] = [
     id: "pickup",
     label: "Local pickup",
     fee: 0,
-    note: "Collect your order from the salon during opening hours: Monday – Saturday, 9:00 am – 7:30 pm. Pick-up is not available on Sundays.",
+    note: "Collect your order from the salon during opening hours (see the footer). Pick-up is not available when the salon is closed.",
     address: "3 Market Walk, Huddersfield HD1 2QA, United Kingdom",
   },
 ];
