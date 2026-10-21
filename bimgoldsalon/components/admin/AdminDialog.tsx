@@ -39,7 +39,7 @@ export default function AdminDialog({
       }}
       className="m-auto w-[calc(100%-2rem)] max-w-2xl rounded-2xl bg-white p-0 shadow-xl backdrop:bg-black/50"
     >
-      <div className="max-h-[85dvh] overflow-y-auto p-5 md:p-6">
+      <div className="max-h-full p-5 md:p-6">
         <div className="mb-4 flex items-center justify-between gap-3">
           <h2 id={titleId} className="text-[22px] font-semibold">
             {title}
@@ -57,4 +57,33 @@ export default function AdminDialog({
       </div>
     </dialog>
   );
+}
+
+{
+  /* <dialog
+  ref={ref}
+  aria-labelledby={titleId}
+  onClose={onClose}
+  onClick={(event) => {
+    if (event.target === ref.current) onClose();
+  }}
+  className="m-auto w-[calc(100%-1rem)] max-w-2xl overflow-hidden rounded-2xl bg-white p-0 shadow-xl backdrop:bg-black/50 sm:w-[calc(100%-2rem)]"
+>
+  <div className="max-h-[calc(100dvh-1rem)] overflow-y-auto overscroll-contain p-4 sm:max-h-[85dvh] md:p-6">
+    <div className="mb-4 flex items-center justify-between gap-3">
+      <h2 id={titleId} className="text-xl font-semibold sm:text-[22px]">
+        {title}
+      </h2>
+      <button
+        type="button"
+        aria-label="Close"
+        onClick={onClose}
+        className={iconBtn}
+      >
+        <X className="size-5" />
+      </button>
+    </div>
+    {open && children}
+  </div>
+</dialog> */
 }

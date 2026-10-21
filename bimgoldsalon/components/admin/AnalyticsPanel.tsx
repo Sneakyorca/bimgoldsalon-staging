@@ -213,7 +213,7 @@ export default function AnalyticsPanel() {
             <RevenueChart series={data.series} />
           </section>
 
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Ranked
               title="Top products"
               empty="No paid orders in this period."

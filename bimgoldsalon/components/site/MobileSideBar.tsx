@@ -37,7 +37,7 @@ const MobileSideBar = ({ className }: MobileSideBarProps) => {
               <Logo />
             </SheetTitle>
           </SheetHeader>
-          <div className="flex flex-col gap-8 pt-6 text-2xl">
+          <div className="flex flex-col items-start gap-8 pt-6 text-2xl">
             {navLinks.map((l) => (
               <SheetClose
                 key={l.href}

@@ -42,7 +42,7 @@ export default function ImageField({
     <div className="space-y-4">
       <div>
         <span className={labelCls}>Main photo</span>
-        <div className="mt-2 flex items-center gap-3">
+        <div className="mt-2 items-center gap-3 grid  grid-cols-[1fr_3fr] sm:flex">
           {image ? (
             <img
               src={image}

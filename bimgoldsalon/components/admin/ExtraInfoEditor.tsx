@@ -20,18 +20,20 @@ export default function ExtraInfoEditor({
       </span>
       <div className="mt-2 space-y-2">
         {entries.map(([key, val], index) => (
-          <div key={index} className="flex gap-2">
+          <div key={index} className="md:flex grid grid-cols-2 gap-2">
             <input
               aria-label="Detail label"
               value={key}
+              placeholder="Label"
               onChange={(e) => update(index, "key", e.target.value)}
-              className="w-1/3 rounded border px-2 py-2 text-sm"
+              className="md:w-1/3 rounded border px-2 py-2 text-sm"
             />
             <input
               aria-label="Detail value"
               value={val}
+              placeholder="Value"
               onChange={(e) => update(index, "value", e.target.value)}
-              className="flex-1 rounded border px-2 py-2 text-sm"
+              className="md:flex-1 rounded border px-2 py-2 text-sm"
             />
             <button
               type="button"

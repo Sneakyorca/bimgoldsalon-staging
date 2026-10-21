@@ -74,7 +74,7 @@ const CartMenu = ({ className = "" }: { className?: string }) => {
           id={panelId}
           role="dialog"
           aria-label="Your cart"
-          className="pop-in absolute right-0 top-full z-50 mt-3 w-80 rounded-lg border border-black/10 bg-white p-4 text-black shadow-xl"
+          className="pop-in fixed left-1/2 top-20 z-50 w-[min(20rem,calc(100vw-2rem))] -translate-x-1/2 rounded-lg border border-black/10 bg-white p-4 text-black shadow-xl sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-3 sm:w-80 sm:translate-x-0"
         >
           <p className="text-[15px] font-semibold">Your Cart</p>
 

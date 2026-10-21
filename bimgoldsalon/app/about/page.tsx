@@ -14,15 +14,15 @@ export const metadata: Metadata = {
 
 const photos = [
   {
-    src: "/images/about-1.jpg",
+    src: "/images/about-image-1.jpg",
     alt: "Shampoo basins and black chairs in the BIM-GOLD salon",
   },
   {
-    src: "/images/about-2.jpg",
+    src: "/images/about-image-2.jpg",
     alt: "A styling chair and lit mirror in the BIM-GOLD salon",
   },
   {
-    src: "/images/about-3.jpg",
+    src: "/images/about-image-3.jpg",
     alt: "Another view of the BIM-GOLD salon",
   },
 ];
