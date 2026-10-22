@@ -17,6 +17,7 @@ const ServiceCard = ({
   details,
   durationLabel,
   fromPrice,
+  isFromPrice,
 }: Service) => {
   // The booking page picks this up and ticks the service for you
   const handleClick = () => {
@@ -49,7 +50,7 @@ const ServiceCard = ({
             {name}
           </h3>
           <p className="mt-1 text-[14px] opacity-70 md:text-center md:text-[10px]">
-            {durationLabel} · from £{fromPrice}
+            {durationLabel} · {isFromPrice ? "from " : ""}£{fromPrice}
           </p>
           <div className="mt-2 space-y-1 text-[16px] md:text-center md:text-[10px] md:leading-snug">
             {details.map(([label, text]) => (

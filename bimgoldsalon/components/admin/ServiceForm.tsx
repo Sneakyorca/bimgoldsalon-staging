@@ -29,6 +29,9 @@ export default function ServiceForm({
   const [name, setName] = useState(initialService?.name ?? "");
   const [category, setCategory] = useState(initialService?.category ?? "");
   const [price, setPrice] = useState(String(initialService?.price ?? ""));
+  const [priceIsFrom, setPriceIsFrom] = useState(
+    initialService?.priceIsFrom ?? false,
+  );
   const [duration, setDuration] = useState(
     String(initialService?.durationMin ?? 60),
   );
@@ -84,6 +87,7 @@ export default function ServiceForm({
         name,
         category,
         price: priceNum,
+        priceIsFrom,
         durationMin: durationNum,
         durationLabel,
         depositPercent: depositNum,
@@ -130,7 +134,7 @@ export default function ServiceForm({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block">
-          <span className={labelCls}>&quot;From&quot; price (£)</span>
+          <span className={labelCls}>Price (£)</span>
           <input
             type="number"
             inputMode="decimal"
@@ -155,6 +159,16 @@ export default function ServiceForm({
           />
         </label>
       </div>
+      <label className="flex items-center gap-3 text-sm">
+        <input
+          type="checkbox"
+          checked={priceIsFrom}
+          onChange={(e) => setPriceIsFrom(e.target.checked)}
+          className="size-5 accent-primary"
+        />
+        Show as a starting price (&quot;From £…&quot;). Untick for a fixed
+        price.
+      </label>
       <p className="text-xs text-muted-foreground">
         {depositOk
           ? `Customers pay a deposit of ${formatPrice(serviceDeposit(priceNum, depositNum))} to secure this service.`

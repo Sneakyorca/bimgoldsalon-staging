@@ -274,6 +274,7 @@ export async function createService(input: {
       name: input.name,
       category: input.category,
       price: input.fromPrice,
+      priceIsFrom: false,
       durationMin: input.durationMin,
       durationLabel: "",
       depositPercent: DEFAULT_DEPOSIT_PERCENT,

@@ -23,6 +23,7 @@ export const serviceInputSchema = z.object({
   name: text("Name", 120),
   category: text("Category", 60),
   price: z.number().min(0).max(100000),
+  priceIsFrom: z.boolean(),
   durationMin: z
     .number()
     .int()

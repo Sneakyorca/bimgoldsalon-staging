@@ -410,3 +410,9 @@ html[data-scrolled="true"] .site-header {
 @utility dialog-in {
   animation: dialog-in 260ms ease-out both;
 }
+/* No scrolling behind an open dialog */
+@layer base {
+  body:has(dialog[open]) {
+    overflow: hidden;
+  }
+}

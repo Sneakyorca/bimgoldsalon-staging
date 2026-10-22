@@ -6,7 +6,7 @@ import { NO_IMAGE } from "@/lib/products";
 import type { Service } from "@/lib/services";
 
 const COLUMNS =
-  "id, name, category, price, duration_min, duration_label, deposit_percent, featured, image_url, extra_info";
+  "id, name, category, price, price_is_from, duration_min, duration_label, deposit_percent, featured, image_url, extra_info";
 
 type Row = {
   id: number;
@@ -17,6 +17,7 @@ type Row = {
   duration_label: string;
   deposit_percent: number | string;
   featured: boolean;
+  price_is_from: boolean;
   image_url: string;
   extra_info: Record<string, string> | null;
 };
@@ -30,6 +31,7 @@ const toService = (r: Row): Service => ({
   durationMin: r.duration_min,
   durationLabel: r.duration_label || formatDuration(r.duration_min),
   fromPrice: Number(r.price),
+  isFromPrice: r.price_is_from,
   depositPercent: Number(r.deposit_percent),
   details: Object.entries(r.extra_info ?? {}),
 });

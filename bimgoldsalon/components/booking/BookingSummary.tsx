@@ -10,6 +10,7 @@ import {
   formatLongDate,
   formatRange,
 } from "@/lib/booking";
+import { ServiceDetailsButton } from "./ServiceInfo";
 import ServiceThumb from "./ServiceThumb";
 import Stars from "./Stars";
 
@@ -90,6 +91,14 @@ const BookingSummary = ({
                     <p className="text-[13px] text-gray-600">
                       {s.durationLabel}
                     </p>
+                    {s.details.length > 0 && (
+                      <ServiceDetailsButton
+                        service={s}
+                        className="mt-1 inline-flex items-center gap-1 text-[13px] font-semibold text-primary underline-offset-2 hover:underline"
+                      >
+                        View details
+                      </ServiceDetailsButton>
+                    )}
                   </div>
                 </div>
                 <span className="text-[14px]">{formatGBP(s.fromPrice)}</span>

@@ -13,8 +13,10 @@ export type Service = {
   durationMin: number;
   /** e.g. "1hr - 2hr" */
   durationLabel: string;
-  /** The "from" price */
+  /** The price */
   fromPrice: number;
+  /** true: shown as "From £X". false: a fixed price. */
+  isFromPrice: boolean;
   depositPercent: number;
   details: [label: string, text: string][];
 };
@@ -24,6 +26,8 @@ export type AdminService = {
   name: string;
   category: string;
   price: number;
+  /** true: shown as "From £X". false: a fixed price. */
+  priceIsFrom: boolean;
   durationMin: number;
   /** Optional text shown to customers instead of the exact duration */
   durationLabel: string;

@@ -19,13 +19,14 @@ type Row = ImageRow & {
   duration_label: string;
   deposit_percent: number | string;
   featured: boolean;
+  price_is_from: boolean;
   capacity: number;
   extra_info: Record<string, string> | null;
   service_images: { image_url: string; sort_order: number }[] | null;
 };
 
 const SELECT =
-  "id, name, category, price, duration_min, duration_label, deposit_percent, featured, capacity, image_url, extra_info, service_images(image_url, sort_order)";
+  "id, name, category, price, price_is_from, duration_min, duration_label, deposit_percent, featured, capacity, image_url, extra_info, service_images(image_url, sort_order)";
 
 const urlsOf = (row: ImageRow) => [
   row.image_url,
@@ -37,6 +38,7 @@ const toAdmin = (r: Row): AdminService => ({
   name: r.name,
   category: r.category,
   price: Number(r.price),
+  priceIsFrom: r.price_is_from,
   durationMin: r.duration_min,
   durationLabel: r.duration_label,
   depositPercent: Number(r.deposit_percent),
@@ -70,6 +72,7 @@ export async function saveServiceRecord(
     name: input.name,
     category: input.category,
     price: Math.round(input.price * 100) / 100,
+    price_is_from: input.priceIsFrom,
     duration_min: input.durationMin,
     duration_label: input.durationLabel,
     deposit_percent: Math.round(input.depositPercent * 100) / 100,
