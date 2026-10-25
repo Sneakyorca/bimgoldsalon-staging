@@ -1,3 +1,33 @@
+// Check the car park name with the owner. It came from a Google summary, and Wilko's shops closed in 2023.
+export const parking = {
+  name: "Wilko car park",
+  postcode: "HD1 2TW",
+  note: "It's next to Alfred Street car park (HD1 2TT).",
+  mapsUrl: "https://www.google.com/maps/search/?api=1&query=HD1+2TW",
+};
+
+export const welcome = {
+  title: "Welcome to BIM-GOLD",
+  intro:
+    "Choose your services, pick a time and secure it with a small deposit. A few things worth knowing before you start:",
+  notes: [
+    {
+      icon: "guest",
+      title: "No extra guests",
+      text: "Please come on your own, unless the person with you also has an appointment. We can't accommodate extra guests.",
+    },
+    {
+      icon: "team",
+      title: "More than one stylist",
+      text: "Longer braiding styles (usually 3 hours or more) can be done by two stylists so we finish on time. Everyone on our team is fully qualified, so the quality is the same whoever you sit with.",
+    },
+    {
+      icon: "deposit",
+      title: "Deposit",
+      text: "A deposit secures your time and is paid when you book. It's non-refundable, and you pay the rest at the salon.",
+    },
+  ],
+};
 export const venue = {
   name: "BIM - GOLD Beauty Place, UK",
   rating: 4.7,
@@ -81,6 +111,13 @@ export const policy = {
           "We may take photos or short videos of hairstyles/services for our social media and marketing purposes.",
           "If you do not wish to be photographed or featured on our social media, please let us know before or during your appointment.",
           "We will respect your preference.",
+        ],
+      },
+      {
+        title: "8. General Notice",
+        points: [
+          "Longer braiding styles (usually 3 hours or more) may be done by more than one stylist so we can finish on time.",
+          "Everyone on our team is fully qualified, and you can expect the same quality of work whoever does your hair.",
         ],
       },
     ],

@@ -14,6 +14,8 @@ import { CartProvider } from "@/context/CartContext";
 import { BookingProvider } from "@/context/BookingContext";
 import ScrollState from "@/components/site/ScrollState";
 import { DEFAULT_DESCRIPTION, SITE_URL } from "@/lib/seo";
+import { Suspense } from "react";
+import Promo from "@/components/site/Promo";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const jakarta = Plus_Jakarta_Sans({
@@ -90,7 +92,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <BookingProvider>
             <Navbar />
             {children}
-            <Footer />
+            <Footer />{" "}
+            <Suspense fallback={null}>
+              <Promo />
+            </Suspense>
           </BookingProvider>
         </CartProvider>
         <Toaster position="top-center" richColors closeButton />

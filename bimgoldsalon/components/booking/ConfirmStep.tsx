@@ -8,6 +8,7 @@ import { useBooking } from "@/context/BookingContext";
 import { policy } from "@/lib/salon";
 import BookingShell from "./BookingShell";
 import BookingSummary from "./BookingSummary";
+import { PolicyBody } from "./PolicyContent";
 
 const ConfirmStep = () => {
   const router = useRouter();
@@ -34,7 +35,6 @@ const ConfirmStep = () => {
     const res = await confirmBooking();
     if (res.ok) {
       if (res.paymentUrl) {
-        // Stripe's payment page: the button stays disabled while we leave
         window.location.assign(res.paymentUrl);
         return;
       }
@@ -42,7 +42,6 @@ const ConfirmStep = () => {
       return;
     }
     if (res.code === "login") {
-      // your choices are kept, so they come straight back here after signing in
       router.push("/auth?next=/booking/confirm");
       return;
     }
@@ -106,26 +105,8 @@ const ConfirmStep = () => {
           <h3 className="text-[26px] font-semibold leading-tight">
             Important Information
           </h3>
-          <div className="mt-3 text-[16px] leading-snug">
-            <p>{policy.important.heading}</p>
-            <p className="mt-4">{policy.important.intro}</p>
-            <p className="mt-4">{policy.important.lead}</p>
-
-            {policy.important.sections.map((s) => (
-              <div key={s.title} className="mt-5">
-                <h4 className="font-medium">{s.title}</h4>
-                <ul className="mt-2 space-y-1">
-                  {s.points.map((p) => (
-                    <li key={p} className="flex gap-2">
-                      <span aria-hidden="true">*</span>
-                      <span>{p}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-
-            <p className="mt-6">{policy.important.closing}</p>
+          <div className="mt-3">
+            <PolicyBody />
           </div>
         </section>
       </div>

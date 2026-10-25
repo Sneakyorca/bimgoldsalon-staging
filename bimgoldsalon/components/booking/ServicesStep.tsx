@@ -10,12 +10,18 @@ import type { Service } from "@/lib/services";
 import BookingShell from "./BookingShell";
 import BookingSummary from "./BookingSummary";
 import { previewText, ServiceDetailsButton } from "./ServiceInfo";
+import BookingWelcome from "./BookingWelcome";
+import PolicyDialogButton from "./PolicyDialog";
+import ServiceThumb from "./ServiceThumb";
 
 const searchText = (s: Service) =>
   [s.name, s.category, ...s.details.map(([, text]) => text)]
     .join(" ")
     .toLowerCase();
-
+const imageOf = (s: Service): string => {
+  const x = s as Service & { image?: string; images?: string[] };
+  return x.image || x.images?.[0] || "";
+};
 const ServiceCard = ({
   s,
   on,
@@ -106,7 +112,15 @@ const ServicesStep = () => {
   const categories = useMemo(
     () => [...new Set(catalog.map((s) => s.category))],
     [catalog],
-  );
+  ); // the first service in each group that has a photo becomes the group's picture
+  const coverByCategory = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const s of catalog) {
+      const img = imageOf(s);
+      if (img && !map.has(s.category)) map.set(s.category, img);
+    }
+    return map;
+  }, [catalog]);
   const index = useMemo(
     () => new Map(catalog.map((s) => [s.id, searchText(s)])),
     [catalog],
@@ -148,6 +162,7 @@ const ServicesStep = () => {
         />
       }
     >
+      <BookingWelcome />
       {loadError ? (
         <p role="alert" className="rounded-lg bg-red-50 p-4 text-red-700">
           {loadError}
@@ -200,24 +215,29 @@ const ServicesStep = () => {
                   ? `${matchCount} service${matchCount === 1 ? "" : "s"} found`
                   : `${catalog.length} services in ${categories.length} categories`}
               </span>
-              {!searching && (
-                <span className="flex gap-4">
-                  <button
-                    type="button"
-                    onClick={() => setOpen(new Set(categories))}
-                    className="font-semibold text-primary underline-offset-2 hover:underline"
-                  >
-                    Expand all
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setOpen(new Set())}
-                    className="font-semibold text-primary underline-offset-2 hover:underline"
-                  >
-                    Collapse all
-                  </button>
-                </span>
-              )}
+              <span className="flex gap-4">
+                <PolicyDialogButton className="font-semibold text-primary underline-offset-2 hover:underline">
+                  Booking policy
+                </PolicyDialogButton>
+                {!searching && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setOpen(new Set(categories))}
+                      className="font-semibold text-primary underline-offset-2 hover:underline"
+                    >
+                      Expand all
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setOpen(new Set())}
+                      className="font-semibold text-primary underline-offset-2 hover:underline"
+                    >
+                      Collapse all
+                    </button>
+                  </>
+                )}
+              </span>
             </div>
           </div>
 
@@ -253,6 +273,12 @@ const ServicesStep = () => {
                         onClick={() => !searching && toggleCategory(category)}
                         className="flex w-full items-center gap-3 px-5 py-4 text-left"
                       >
+                        {coverByCategory.get(category) && (
+                          <ServiceThumb
+                            image={coverByCategory.get(category)}
+                            className="size-12"
+                          />
+                        )}
                         <span className="min-w-0 flex-1 text-[18px] font-semibold leading-tight">
                           {category}
                         </span>

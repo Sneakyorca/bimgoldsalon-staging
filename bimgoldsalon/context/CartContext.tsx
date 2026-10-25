@@ -14,6 +14,11 @@ import {
   DEFAULT_DELIVERY,
   type DeliveryMethodId,
 } from "@/lib/delivery-options";
+import { createClient } from "@/lib/supabase/client";
+import {
+  getSavedCartAction,
+  syncCartAction,
+} from "@/app/cart/reminder-actions";
 
 export type CartItem = Product & { qty: number };
 
@@ -109,7 +114,71 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       // ignore storage errors (private browsing, quota...)
     }
   }, [cartItems, ready]);
+  // ---- Basket reminders: a signed-in customer's basket is also saved on the server ----
+  const [signedIn, setSignedIn] = useState(false);
+  const [syncReady, setSyncReady] = useState(false);
+  const restoreStarted = useRef(false);
+  const lastSynced = useRef<string | null>(null);
 
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth
+      .getSession()
+      .then(({ data }) => setSignedIn(Boolean(data.session)));
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSignedIn(Boolean(session));
+      if (!session) {
+        restoreStarted.current = false;
+        lastSynced.current = null;
+        setSyncReady(false);
+      }
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  // On a new device the basket is empty, so fetch the saved one first.
+  // Syncing waits for this, so an empty basket can't wipe the saved one.
+  useEffect(() => {
+    if (!ready || !signedIn || restoreStarted.current) return;
+    restoreStarted.current = true;
+    if (cartItems.length > 0) {
+      setSyncReady(true);
+      return;
+    }
+    getSavedCartAction()
+      .then(async (saved) => {
+        if (saved.length === 0) return;
+        const fresh = await getCartProductsAction(saved.map((l) => l.id));
+        const restored: CartItem[] = saved.flatMap((l) => {
+          const product = fresh.find((p) => p.id === l.id);
+          return product ? [{ ...product, qty: Math.min(MAX_QTY, l.qty) }] : [];
+        });
+        setCartItems((prev) => (prev.length > 0 ? prev : restored));
+      })
+      .catch(() => {})
+      .finally(() => setSyncReady(true));
+  }, [ready, signedIn, cartItems.length]);
+
+  useEffect(() => {
+    if (!syncReady || !signedIn) return;
+    const lines = cartItems
+      .map(({ id, qty }) => ({ id, qty }))
+      .sort((a, b) => a.id - b.id);
+    const snapshot = JSON.stringify(lines);
+    if (snapshot === lastSynced.current) return;
+    if (lastSynced.current === null && lines.length === 0) {
+      lastSynced.current = snapshot; // nothing to save yet
+      return;
+    }
+    const timer = setTimeout(() => {
+      syncCartAction(lines)
+        .then((r) => {
+          if (r.ok) lastSynced.current = snapshot;
+        })
+        .catch(() => {});
+    }, 4000);
+    return () => clearTimeout(timer);
+  }, [cartItems, syncReady, signedIn]);
   const addToCart = (p: Product, qty = 1) => {
     if (!p.inStock) return;
     setCartItems((prev) =>

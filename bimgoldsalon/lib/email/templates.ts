@@ -5,7 +5,7 @@ import {
   formatRange,
   parseHHMM,
 } from "@/lib/booking";
-
+import { parking } from "@/lib/salon";
 import { countryName } from "@/lib/countries";
 import { deliveryOptions } from "@/lib/delivery-options";
 import { BRAND, siteUrl } from "./brand";
@@ -497,6 +497,85 @@ export function waitlistSlotEmail(e: {
     html: layout({
       title: "A time may have opened up",
       preheader: `${date} · ${e.serviceNames}`,
+      body,
+    }),
+  };
+}
+/* ---------- reminders ---------- */
+export function bookingReminderEmail(b: BookingEmail): Built {
+  const w = whenOf(b);
+  const balance = Math.max(0, b.price - b.depositAmount);
+  const body =
+    h1(`See you soon, ${first(b.customerName)}`) +
+    p("A quick reminder about your appointment.") +
+    appointmentBox(b) +
+    lineTable(
+      ["Service", "Duration", "Price"],
+      b.lines.map((l) => [l.name, formatDuration(l.durationMin), gbp(l.price)]),
+    ) +
+    totals(
+      b.isPaid
+        ? [
+            ["Service total", gbp(b.price)],
+            ["Deposit paid", gbp(b.depositAmount)],
+            ["Balance due at the salon", gbp(balance), true],
+          ]
+        : [["Total", gbp(b.price), true]],
+    ) +
+    box(
+      "Getting here",
+      `${esc(BRAND.address)}<br>Nearest car park: ${esc(parking.name)}, ${esc(parking.postcode)}. ${esc(parking.note)}`,
+    ) +
+    box(
+      "Before you come",
+      "Please arrive on time, with your hair detangled and ready for your style. Come on your own unless your guest has their own appointment.",
+    ) +
+    policyBox(b) +
+    button(`${siteUrl()}/account`, "View my booking") +
+    small(`Booking reference ${ref(b.id)}`);
+  return {
+    subject: `Reminder: your appointment on ${w.date}, ${w.time.split("-")[0]}`,
+    html: layout({
+      title: "Appointment reminder",
+      preheader: `${w.date}, ${w.time}`,
+      body,
+    }),
+  };
+}
+
+export function cartReminderEmail(o: {
+  name: string;
+  items: { name: string; quantity: number; price: number }[];
+  total: number;
+  unsubscribeUrl: string;
+  second: boolean;
+}): Built {
+  const body =
+    h1(
+      o.second
+        ? `Your basket is still here, ${first(o.name)}`
+        : `You left something behind, ${first(o.name)}`,
+    ) +
+    p("The items below are still in your basket whenever you're ready.") +
+    lineTable(
+      ["Item", "Qty", "Price"],
+      o.items.map((i) => [
+        i.name,
+        String(i.quantity),
+        gbp(i.price * i.quantity),
+      ]),
+    ) +
+    totals([["Basket total", gbp(o.total), true]]) +
+    button(`${siteUrl()}/cart`, "Back to my basket") +
+    small("Delivery is worked out at checkout.") +
+    `<p style="margin:16px 0 0;font-size:12px;line-height:1.6;color:${MUTED};">Don't want basket reminders? <a href="${esc(o.unsubscribeUrl)}" style="color:${MUTED};">Unsubscribe</a>.</p>`;
+  return {
+    subject: o.second
+      ? "Your basket is still waiting"
+      : "You left something in your basket",
+    html: layout({
+      title: "Your basket",
+      preheader: `${o.items.length} item${o.items.length === 1 ? "" : "s"} waiting for you`,
       body,
     }),
   };

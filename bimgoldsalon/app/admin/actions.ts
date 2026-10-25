@@ -31,6 +31,8 @@ import {
   PAYMENT_STATUSES,
 } from "@/lib/statuses";
 import { notifyBookingStatus, notifyOrderStatus } from "@/lib/email/notify";
+import * as promoData from "@/Data/promo";
+import { promoSchema, type PromoInput } from "@/lib/schemas/promo";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -424,6 +426,20 @@ export async function removeWaitlistEntry(entryId: string): Promise<Result> {
     if (!p.success) return { ok: false, error: "Invalid entry." };
     const res = await waitlistData.deleteWaitlistRecord(p.data);
     if (res.ok) done();
+    return res;
+  });
+}
+// ---- Promotion pop-up ---------------------------------------------------------------
+
+export async function savePromo(input: PromoInput): Promise<Result> {
+  return guarded(async () => {
+    const p = promoSchema.safeParse(input);
+    if (!p.success) return { ok: false, error: firstIssue(p.error) };
+    const res = await promoData.savePromoRecord(p.data);
+    if (res.ok) {
+      done();
+      revalidatePath("/", "layout"); // every page can show it
+    }
     return res;
   });
 }

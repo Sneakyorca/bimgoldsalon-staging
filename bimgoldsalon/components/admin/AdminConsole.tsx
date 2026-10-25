@@ -16,6 +16,7 @@ import {
   Settings as SettingsIcon,
   ShoppingCart,
   Users,
+  Megaphone,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -34,8 +35,10 @@ import ProductsPanel, { type StockPreset } from "./ProductsPanel";
 import ServicesPanel from "./ServicesPanel";
 import SettingsPanel from "./SettingsPanel";
 import WaitlistPanel from "./WaitlistPanel";
+import type { Promo } from "@/Data/promo";
+import PromoPanel from "./PromoPanel";
 
-type AdminSection = BaseSection | "applications" | "settings";
+type AdminSection = BaseSection | "applications" | "settings" | "promotions";
 
 const NAV: { id: AdminSection; label: string; icon: LucideIcon }[] = [
   { id: "overview", label: "Analytics", icon: LayoutDashboard },
@@ -47,6 +50,7 @@ const NAV: { id: AdminSection; label: string; icon: LucideIcon }[] = [
   { id: "products", label: "Products", icon: Package },
   { id: "services", label: "Services", icon: Scissors },
   { id: "applications", label: "Applications", icon: GraduationCap },
+  { id: "promotions", label: "Promotions", icon: Megaphone },
   { id: "settings", label: "Settings", icon: SettingsIcon },
 ];
 
@@ -65,9 +69,11 @@ const Badge = ({ n, title }: { n: number; title?: string }) => (
 export default function AdminConsole({
   adminName,
   data,
+  promo,
 }: {
   adminName: string;
   data: AdminSnapshot;
+  promo: Promo;
 }) {
   const [section, setSection] = useState<AdminSection>("overview");
   const [navOpen, setNavOpen] = useState(false);
@@ -288,6 +294,7 @@ export default function AdminConsole({
           )}
           {section === "waitlist" && <WaitlistPanel entries={data.waitlist} />}
           {section === "settings" && <SettingsPanel settings={data.settings} />}
+          {section === "promotions" && <PromoPanel promo={promo} />}
         </div>
       </div>
     </div>
