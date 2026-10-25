@@ -11,6 +11,7 @@ export type PromoView = {
   message: string;
   buttonLabel: string;
   buttonUrl: string;
+  image: string;
   startsAt: string | null;
   endsAt: string | null;
   repeatHours: number;
@@ -84,63 +85,81 @@ function PromoLink({
 }
 
 type CardProps = {
-  promo: Pick<PromoView, "title" | "message" | "buttonLabel" | "buttonUrl">;
+  promo: Pick<
+    PromoView,
+    "title" | "message" | "buttonLabel" | "buttonUrl" | "image"
+  >;
   onClose: () => void;
   /** admin preview: no dialog role, no autofocus */
   preview?: boolean;
 };
-
 export function PromoPopupCard({ promo, onClose, preview }: CardProps) {
   const hasButton = promo.buttonLabel !== "" && promo.buttonUrl !== "";
+  const hasImage = promo.image !== "";
   return (
     <div
       role={preview ? undefined : "dialog"}
       aria-modal={preview ? undefined : true}
       aria-labelledby={promo.title ? "promo-popup-title" : undefined}
       onClick={(e) => e.stopPropagation()}
-      className="dialog-in relative w-full max-w-md rounded-2xl bg-white px-6 pb-8 pt-12 text-center shadow-xl md:px-10"
+      className={`dialog-in relative w-full max-w-md overflow-hidden rounded-2xl bg-white text-center shadow-xl ${hasImage ? "" : "px-6 pb-8 pt-12 md:px-10"}`}
     >
       <button
         type="button"
         onClick={onClose}
         aria-label="Close"
         autoFocus={!preview}
-        className="absolute right-4 top-4 grid size-8 place-items-center rounded-full transition hover:bg-black/5"
+        className={`absolute right-4 top-4 z-10 grid size-8 place-items-center rounded-full transition ${hasImage ? "bg-white/90 shadow hover:bg-white" : "hover:bg-black/5"}`}
       >
         <X className="size-6" strokeWidth={1.5} />
       </button>
-      <div className="mx-auto grid size-20 place-items-center rounded-full bg-primary text-white">
-        <Sparkles className="size-9" />
-      </div>
-      {promo.title && (
-        <h2
-          id="promo-popup-title"
-          className="mt-6 text-[24px] font-semibold leading-tight md:text-[28px]"
-        >
-          {promo.title}
-        </h2>
+
+      {hasImage ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={promo.image}
+          alt=""
+          className="aspect-[16/10] w-full object-cover"
+        />
+      ) : (
+        <div className="mx-auto grid size-20 place-items-center rounded-full bg-primary text-white">
+          <Sparkles className="size-9" />
+        </div>
       )}
-      {promo.message && (
-        <p className="mt-4 whitespace-pre-line text-[16px] leading-relaxed text-neutral-700 md:text-[18px]">
-          {promo.message}
-        </p>
-      )}
-      {hasButton && (
-        <PromoLink
-          url={promo.buttonUrl}
+
+      <div className={hasImage ? "px-6 pb-8 pt-6 md:px-10" : ""}>
+        {promo.title && (
+          <h2
+            id="promo-popup-title"
+            className={`${hasImage ? "" : "mt-6"} text-[24px] font-semibold leading-tight md:text-[28px]`}
+          >
+            {promo.title}
+          </h2>
+        )}
+        {promo.message && (
+          <p
+            className={`${promo.title || !hasImage ? "mt-4" : ""} whitespace-pre-line text-[16px] leading-relaxed text-neutral-700 md:text-[18px]`}
+          >
+            {promo.message}
+          </p>
+        )}
+        {hasButton && (
+          <PromoLink
+            url={promo.buttonUrl}
+            onClick={onClose}
+            className="mt-8 flex h-12 w-full items-center justify-center rounded-2xl bg-primary text-[16px] font-semibold text-white transition hover:opacity-90"
+          >
+            {promo.buttonLabel}
+          </PromoLink>
+        )}
+        <button
+          type="button"
           onClick={onClose}
-          className="mt-8 flex h-12 w-full items-center justify-center rounded-2xl bg-primary text-[16px] font-semibold text-white transition hover:opacity-90"
+          className="mt-5 text-[16px] font-semibold text-neutral-900 hover:underline"
         >
-          {promo.buttonLabel}
-        </PromoLink>
-      )}
-      <button
-        type="button"
-        onClick={onClose}
-        className="mt-5 text-[16px] font-semibold text-neutral-900 hover:underline"
-      >
-        No thanks
-      </button>
+          No thanks
+        </button>
+      </div>
     </div>
   );
 }

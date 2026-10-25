@@ -12,6 +12,7 @@ export default async function Promo() {
         message: p.message,
         buttonLabel: p.buttonLabel,
         buttonUrl: p.buttonUrl,
+        image: p.image,
         startsAt: p.startsAt,
         endsAt: p.endsAt,
         repeatHours: p.repeatHours,
