@@ -28,6 +28,14 @@ const link = z
       /^https:\/\/\S+$/.test(v),
     "Use a page on this site (like /booking) or a full https:// link.",
   );
+export const PROMO_MAX_IMAGE_CHARS = 700_000;
+const promoImage = z
+  .string()
+  .max(PROMO_MAX_IMAGE_CHARS, "That picture is too large.")
+  .regex(
+    /^(|data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+|https:\/\/\S+)$/,
+    "That picture type isn't allowed.",
+  );
 
 export const promoSchema = z
   .object({
@@ -46,6 +54,7 @@ export const promoSchema = z
       .trim()
       .max(30, "The button text is too long (30 characters max)."),
     buttonUrl: link,
+    image: promoImage,
     startsAt: z.string().nullable(),
     durationDays: z.number().int().min(1).max(365).nullable(),
     repeatHours: z.number().int().min(0).max(720),

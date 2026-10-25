@@ -20,14 +20,34 @@ const toLocalInput = (iso: string | null) => {
   if (Number.isNaN(d.getTime())) return "";
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
-
+async function compressToDataUrl(file: File, max = 1000): Promise<string> {
+  if (!["image/png", "image/jpeg", "image/webp"].includes(file.type))
+    throw new Error("Choose a PNG, JPG or WebP picture.");
+  if (file.size > 8 * 1024 * 1024)
+    throw new Error("That picture is over 8 MB.");
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, max / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Couldn't read that picture.");
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  const out = canvas.toDataURL("image/jpeg", 0.8);
+  if (out.length > 680_000)
+    throw new Error("That picture is still too large. Try a smaller one.");
+  return out;
+}
 function Field({
   label,
   hint,
   children,
 }: {
   label: string;
-  hint?: string;
+  hint?: ReactNode;
   children: ReactNode;
 }) {
   return (
@@ -56,6 +76,8 @@ export default function PromoPanel({ promo }: { promo: Promo }) {
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
   const [pending, startSave] = useTransition();
+  const [image, setImage] = useState(promo.image);
+  const [imageError, setImageError] = useState("");
 
   // times use the device's clock, so they're filled in after the page loads
   useEffect(() => {
@@ -94,7 +116,17 @@ export default function PromoPanel({ promo }: { promo: Promo }) {
       : promo.startsAt && Date.parse(promo.startsAt) > Date.now()
         ? "Scheduled"
         : "Live";
-
+  const pickImage = async (file: File | undefined) => {
+    if (!file) return;
+    setImageError("");
+    try {
+      setImage(await compressToDataUrl(file));
+    } catch (e) {
+      setImageError(
+        e instanceof Error ? e.message : "Couldn't read that picture.",
+      );
+    }
+  };
   const submit = () => {
     setError("");
     setSaved(false);
@@ -107,6 +139,7 @@ export default function PromoPanel({ promo }: { promo: Promo }) {
           message,
           buttonLabel,
           buttonUrl,
+          image,
           startsAt: startsAt ? new Date(startsAt).toISOString() : null,
           durationDays,
           repeatHours,
@@ -119,7 +152,7 @@ export default function PromoPanel({ promo }: { promo: Promo }) {
     });
   };
 
-  const view = { title, message, buttonLabel, buttonUrl };
+  const view = { title, message, buttonLabel, buttonUrl, image };
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)]">
@@ -189,6 +222,65 @@ export default function PromoPanel({ promo }: { promo: Promo }) {
           />
         </Field>
 
+        <div>
+          <span className="mb-1 block text-sm font-medium">
+            Picture (optional)
+          </span>
+          {image ? (
+            <div className="flex items-center gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={image}
+                alt=""
+                className="h-20 w-32 rounded object-cover"
+              />
+              <div className="flex flex-col gap-1 text-sm">
+                <label className="cursor-pointer font-semibold text-primary underline-offset-2 hover:underline">
+                  Change picture
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    className="sr-only"
+                    onChange={(e) => {
+                      pickImage(e.target.files?.[0]);
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setImage("")}
+                  className="text-left text-red-600 hover:underline"
+                >
+                  Remove
+                </button>
+              </div>
+            </div>
+          ) : (
+            <label className="inline-flex cursor-pointer items-center rounded border border-dashed border-border px-4 py-3 text-sm hover:bg-card">
+              Choose a picture
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                className="sr-only"
+                onChange={(e) => {
+                  pickImage(e.target.files?.[0]);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+          )}
+          <span className="mt-1 block text-xs text-muted-foreground">
+            Shown at the top of the pop-up (the top bar doesn&apos;t use it).
+            Wide pictures, about 16:10, look best.
+          </span>
+          {imageError && (
+            <p role="alert" className="mt-1 text-xs text-red-600">
+              {imageError}
+            </p>
+          )}
+        </div>
+
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Button text (optional)">
             <input
@@ -238,13 +330,11 @@ export default function PromoPanel({ promo }: { promo: Promo }) {
           <Field
             label="Runs for"
             hint={
-              endsText
-                ? ((
-                    <>
-                      Ends <span suppressHydrationWarning>{endsText}</span>
-                    </>
-                  ) as unknown as string)
-                : undefined
+              endsText ? (
+                <>
+                  Ends <span suppressHydrationWarning>{endsText}</span>
+                </>
+              ) : undefined
             }
           >
             <select
