@@ -8,6 +8,7 @@ import { listCustomers } from "@/Data/customers";
 import { listAllOrders, listOrdersForUser } from "@/Data/orders";
 import { getSettings } from "@/Data/settings";
 import { listWaitlist } from "@/Data/waitlist";
+import { getVariantStats } from "@/Data/variants";
 import type {
   BookingStatus,
   OrderStatus,
@@ -102,6 +103,15 @@ export async function getAdminSnapshot() {
     getSettings(),
   ]);
 
+  // option variants are managed inside their product, so hide them from the list
+  const { childIds, byParent } = await getVariantStats();
+  const visibleProducts = products
+    .filter((p) => !childIds.has(p.id))
+    .map((p) => {
+      const v = byParent.get(p.id);
+      return v ? { ...p, stock: v.stock } : p; // total across its options
+    });
+
   const paidOrders = orders.filter(
     (o) => o.paymentStatus === "paid" && o.orderStatus !== "cancelled",
   );
@@ -123,7 +133,7 @@ export async function getAdminSnapshot() {
     applications,
     waitlist,
     settings,
-    products: products.map((product) => ({
+    products: visibleProducts.map((product) => ({
       ...product,
       inStock: product.stock > 0,
     })),

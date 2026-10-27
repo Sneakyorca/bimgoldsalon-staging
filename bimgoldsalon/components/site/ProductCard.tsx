@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useCart } from "@/context/CartContext";
 import type { Product } from "@/lib/products";
 import { formatPrice } from "@/lib/format";
+import ChooseOptionsButton from "./ChooseOptionsButton";
 
 type Props = {
   product: Product;
@@ -72,7 +73,10 @@ const ProductCard = ({
           isGrid ? "h-64 lg:h-72.25" : "h-32.25 lg:h-72.25"
         }`}
       />
-      <h3 className="mt-3 line-clamp-2 text-[16px] font-semibold">
+      <h3
+        title={product.name}
+        className="mt-3 line-clamp-3 text-[16px] font-semibold"
+      >
         {product.name}
       </h3>
       <p
@@ -84,8 +88,11 @@ const ProductCard = ({
       >
         {product.blurb}
       </p>
-      <div className="mt-3 flex items-center justify-between">
+      <div className="mt-3 flex items-center justify-between gap-2">
         <span className="text-[16px] font-bold">
+          {product.priceFrom && (
+            <span className="text-[12px] font-normal">from </span>
+          )}
           {formatPrice(product.price)}
           {hasDiscount && (
             <span className="ml-2 text-[12px] font-normal text-gray-500 line-through">
@@ -93,23 +100,31 @@ const ProductCard = ({
             </span>
           )}
         </span>
-        <button
-          type="button"
-          onClick={handleAdd}
-          disabled={!product.inStock}
-          aria-label={label}
-          className="relative grid size-6 place-items-center rounded-full bg-primary text-white disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          <ShoppingCart className="size-4" />
-          {inCart > 0 && (
-            <span
-              aria-hidden="true"
-              className="absolute -right-2 -top-2 grid h-4 min-w-4 place-items-center rounded-full bg-red-600 px-1 text-[10px] font-bold leading-none text-white"
-            >
-              {inCart}
-            </span>
-          )}
-        </button>
+
+        {product.hasOptions ? (
+          <ChooseOptionsButton
+            productId={product.id}
+            className="shrink-0 px-2.5 py-2"
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={handleAdd}
+            disabled={!product.inStock}
+            aria-label={label}
+            className="relative grid size-8 shrink-0 place-items-center rounded-full bg-primary text-white disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <ShoppingCart className="size-4" />
+            {inCart > 0 && (
+              <span
+                aria-hidden="true"
+                className="absolute -right-2 -top-2 grid h-4 min-w-4 place-items-center rounded-full bg-red-600 px-1 text-[10px] font-bold leading-none text-white"
+              >
+                {inCart}
+              </span>
+            )}
+          </button>
+        )}
       </div>
     </Link>
   );

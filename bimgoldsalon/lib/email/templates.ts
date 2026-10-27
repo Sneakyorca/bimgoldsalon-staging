@@ -9,6 +9,7 @@ import { parking } from "@/lib/salon";
 import { countryName } from "@/lib/countries";
 import { deliveryOptions } from "@/lib/delivery-options";
 import { BRAND, siteUrl } from "./brand";
+import { splitName } from "@/lib/variants";
 
 export type Built = { subject: string; html: string };
 export type BookingEmail = BookingView & {
@@ -92,6 +93,21 @@ const invoiceHead = (
   `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:8px 0 20px;border-top:1px solid ${LINE};border-bottom:1px solid ${LINE};"><tr><td style="padding:16px 0;"><div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#8a8580;">${esc(label)}</div><div style="margin-top:4px;font-size:20px;font-weight:bold;color:${INK};">${esc(number)}</div><div style="margin-top:2px;font-size:13px;color:${MUTED};">${esc(sub)}</div></td><td align="right" valign="top" style="padding:16px 0;">${badge(status, kind)}</td></tr></table>`;
 
 const th = `padding:8px 0;border-bottom:2px solid ${LINE};font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#8a8580;`;
+
+/** First line is the item name. A second line (the options) shows smaller underneath. */
+const cellText = (s: string) => {
+  const [head, ...rest] = s.split("\n");
+  return `${esc(head)}${
+    rest.length
+      ? `<div style="margin-top:2px;font-size:12px;color:${MUTED};">${esc(rest.join(" "))}</div>`
+      : ""
+  }`;
+};
+const itemLabel = (name: string) => {
+  const { title, options } = splitName(name);
+  return options ? `${title}\n${options}` : title;
+};
+
 const lineTable = (
   head: [string, string, string],
   rows: [string, string, string][],
@@ -99,7 +115,7 @@ const lineTable = (
   `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><th align="left" style="${th}">${esc(head[0])}</th><th align="center" style="${th}">${esc(head[1])}</th><th align="right" style="${th}">${esc(head[2])}</th></tr>${rows
     .map(
       (r) =>
-        `<tr><td style="padding:12px 0;border-bottom:1px solid ${LINE};font-size:14px;color:${INK};">${esc(r[0])}</td><td align="center" style="padding:12px 8px;border-bottom:1px solid ${LINE};font-size:14px;color:${MUTED};">${esc(r[1])}</td><td align="right" style="padding:12px 0;border-bottom:1px solid ${LINE};font-size:14px;color:${INK};">${esc(r[2])}</td></tr>`,
+        `<tr><td style="padding:12px 0;border-bottom:1px solid ${LINE};font-size:14px;color:${INK};">${cellText(r[0])}</td><td align="center" style="padding:12px 8px;border-bottom:1px solid ${LINE};font-size:14px;color:${MUTED};">${esc(r[1])}</td><td align="right" style="padding:12px 0;border-bottom:1px solid ${LINE};font-size:14px;color:${INK};">${esc(r[2])}</td></tr>`,
     )
     .join("")}</table>`;
 
@@ -142,7 +158,7 @@ export function orderInvoiceEmail(o: OrderView): Built {
     lineTable(
       ["Item", "Qty", "Price"],
       o.items.map((i) => [
-        i.name,
+        itemLabel(i.name),
         String(i.quantity),
         gbp(i.price * i.quantity),
       ]),
@@ -366,7 +382,7 @@ export function adminOrderEmail(o: OrderView): Built {
     lineTable(
       ["Item", "Qty", "Price"],
       o.items.map((i) => [
-        i.name,
+        itemLabel(i.name),
         String(i.quantity),
         gbp(i.price * i.quantity),
       ]),
@@ -560,7 +576,7 @@ export function cartReminderEmail(o: {
     lineTable(
       ["Item", "Qty", "Price"],
       o.items.map((i) => [
-        i.name,
+        itemLabel(i.name),
         String(i.quantity),
         gbp(i.price * i.quantity),
       ]),

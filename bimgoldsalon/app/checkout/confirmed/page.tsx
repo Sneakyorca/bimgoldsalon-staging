@@ -7,6 +7,7 @@ import { deliveryOptions } from "@/lib/delivery-options";
 import { requireUser } from "@/lib/auth/dal";
 import { countryName } from "@/lib/countries";
 import { formatPrice } from "@/lib/format";
+import ItemName from "@/components/site/ItemName";
 
 export const metadata: Metadata = {
   title: "Order received",
@@ -48,7 +49,7 @@ export default async function OrderConfirmedPage({ searchParams }: Props) {
                 className="flex justify-between gap-4"
               >
                 <span>
-                  {item.quantity} × {item.name}
+                  {item.quantity} × <ItemName name={item.name} />
                 </span>
                 <span className="shrink-0">
                   {formatPrice(item.price * item.quantity)}

@@ -7,6 +7,7 @@ import type { BookingView, OrderView, PublicUser } from "@/lib/auth/api";
 import { formatGBP } from "@/lib/booking";
 import { formatDay, formatStamp } from "@/lib/date";
 import BookingActions from "@/components/account/BookingActions";
+import ItemName from "@/components/site/ItemName";
 
 const Empty = ({
   title,
@@ -126,7 +127,7 @@ export default function CustomerDashboard({ user, bookings, orders }: Props) {
                 <ul className="mt-1 text-[16px]">
                   {order.items.map((item) => (
                     <li key={`${order.id}-${item.productId}`}>
-                      {item.quantity} x {item.name}
+                      {item.quantity} x <ItemName name={item.name} />
                     </li>
                   ))}
                 </ul>

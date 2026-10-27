@@ -7,6 +7,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/lib/format";
 import CartBadge from "./CartBadge";
+import ItemName from "./ItemName";
 
 /**
  * Navbar cart button: shows the item count and opens a mini-cart dropdown.
@@ -97,9 +98,16 @@ const CartMenu = ({ className = "" }: { className?: string }) => {
                       />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="line-clamp-1 text-[14px] font-semibold">
-                        {it.name}
-                      </p>
+                      <Link
+                        href={`/product/${it.id}`}
+                        onClick={close}
+                        className="block text-[14px] font-semibold leading-snug hover:underline"
+                      >
+                        <ItemName
+                          name={it.name}
+                          titleClassName="line-clamp-2"
+                        />
+                      </Link>
                       <p className="text-[12px] text-black/60">
                         {formatPrice(it.price)} × {it.qty}
                       </p>

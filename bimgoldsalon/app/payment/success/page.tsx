@@ -19,6 +19,7 @@ import { deliveryOptions } from "@/lib/delivery-options";
 import { formatPrice } from "@/lib/format";
 import { stripe } from "@/lib/stripe";
 import CheckoutSteps from "@/components/site/CheckoutSteps";
+import ItemName from "@/components/site/ItemName";
 
 export const metadata: Metadata = {
   title: "Payment",
@@ -109,7 +110,7 @@ export default async function PaymentSuccessPage({ searchParams }: Props) {
                   className="flex justify-between gap-4"
                 >
                   <span>
-                    {item.quantity} × {item.name}
+                    {item.quantity} × <ItemName name={item.name} />
                   </span>
                   <span className="shrink-0">
                     {formatPrice(item.price * item.quantity)}

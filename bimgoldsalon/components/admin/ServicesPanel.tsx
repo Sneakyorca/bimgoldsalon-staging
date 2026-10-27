@@ -112,8 +112,8 @@ export default function ServicesPanel({
                       <div className="size-10 rounded bg-[#ebebeb]" />
                     )}
                   </td>
-                  <td className="max-w-xs px-4 py-3 font-medium">
-                    <span className="line-clamp-2" title={s.name}>
+                  <td className="max-w-md px-4 py-3 font-medium">
+                    <span className="line-clamp-3" title={s.name}>
                       {s.name}
                     </span>
                   </td>

@@ -13,6 +13,8 @@ export type Product = {
   stock: number;
   inStock: boolean;
   image: string;
+  hasOptions?: boolean;
+  priceFrom?: boolean;
 };
 
 export type AdminProduct = {

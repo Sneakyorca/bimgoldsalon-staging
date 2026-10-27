@@ -33,6 +33,8 @@ import {
 import { notifyBookingStatus, notifyOrderStatus } from "@/lib/email/notify";
 import * as promoData from "@/Data/promo";
 import { promoSchema, type PromoInput } from "@/lib/schemas/promo";
+import * as variantData from "@/Data/variants";
+import { optionsSchema, type AdminOptions } from "@/lib/variants";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -258,7 +260,14 @@ export async function saveProduct(
       idCheck.data,
       parsed.data,
     );
-    if (result.ok) refreshShop();
+    if (result.ok) {
+      // keep this product's options in step with its name, price and photo
+      if (idCheck.data !== null)
+        await variantData
+          .syncVariantsFromParent(idCheck.data)
+          .catch((e) => console.error("[syncVariants]", e));
+      refreshShop();
+    }
     return result;
   });
 }
@@ -442,4 +451,38 @@ export async function savePromo(input: PromoInput): Promise<Result> {
     }
     return res;
   });
+}
+// ---- Product options ----------------------------------------------------------------
+
+export async function saveProductOptions(
+  productId: number,
+  input: unknown,
+): Promise<Result> {
+  return guarded(async () => {
+    const id = z.number().int().min(0).safeParse(productId);
+    if (!id.success) return { ok: false, error: "Invalid product." };
+    const p = optionsSchema.safeParse(input);
+    if (!p.success) return { ok: false, error: firstIssue(p.error) };
+    const res = await variantData.saveVariantsRecord(id.data, p.data);
+    if (res.ok) refreshShop();
+    return res;
+  });
+}
+
+export async function getProductOptionsForAdmin(
+  productId: number,
+): Promise<{ ok: true; data: AdminOptions } | { ok: false; error: string }> {
+  try {
+    if (!(await isAdminUser()))
+      return {
+        ok: false,
+        error: "Your sign-in has expired. Please refresh the page and sign in again.",
+      };
+    const id = z.number().int().min(0).safeParse(productId);
+    if (!id.success) return { ok: false, error: "Invalid product." };
+    return { ok: true, data: await variantData.getAdminOptions(id.data) };
+  } catch (e) {
+    console.error("[getProductOptionsForAdmin]", e);
+    return { ok: false, error: "Could not load the options." };
+  }
 }

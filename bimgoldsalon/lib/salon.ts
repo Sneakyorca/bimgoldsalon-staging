@@ -7,27 +7,12 @@ export const parking = {
 };
 
 export const welcome = {
-  title: "Welcome to BIM-GOLD",
-  intro:
-    "Choose your services, pick a time and secure it with a small deposit. A few things worth knowing before you start:",
-  notes: [
-    {
-      icon: "guest",
-      title: "No extra guests",
-      text: "Please come on your own, unless the person with you also has an appointment. We can't accommodate extra guests.",
-    },
-    {
-      icon: "team",
-      title: "More than one stylist",
-      text: "Longer braiding styles (usually 3 hours or more) can be done by two stylists so we finish on time. Everyone on our team is fully qualified, so the quality is the same whoever you sit with.",
-    },
-    {
-      icon: "deposit",
-      title: "Deposit",
-      text: "A deposit secures your time and is paid when you book. It's non-refundable, and you pay the rest at the salon.",
-    },
-  ],
+  title: "Hello Beautiful! 💕",
+  // {parking} turns into the Maps link for the car park
+  paragraph:
+    "✨ WELCOME TO BIM-GOLD HAIR & BEAUTY SALON ✨\n\nWe’re delighted to have you here! At Bim-Gold, we’re passionate about making you look and feel your best. Explore our services and book your next hair appointment with us. We can’t wait to welcome you!\n\n🚗 Parking: The nearest car park is {parking}, if you're coming by car. \n\nThank you for choosing Bim-Gold 💕",
 };
+
 export const venue = {
   name: "BIM - GOLD Beauty Place, UK",
   rating: 4.7,
@@ -54,7 +39,7 @@ export const MIN_LEAD_MIN = 60; // can't book a slot starting within the next ho
 export const BOOKING_WINDOW_DAYS = 30; // how many days ahead can be booked
 
 export const policy = {
-  cancellation: "Please cancel at least 24 hours before appointment.",
+  cancellation: "Please cancel at least 48 hours before appointment.",
   important: {
     heading: "SALON POLICY",
     intro:
@@ -72,7 +57,7 @@ export const policy = {
         title: "2. Children & Extra Guests",
         points: [
           "Please come alone unless the accompanying person also has an appointment.",
-          "Children’s hair appointments are available for ages 5–10 years.",
+          "Children’s hair appointments are available for ages 3–10 years.",
           "Please do not bring children who do not have an appointment.",
         ],
       },

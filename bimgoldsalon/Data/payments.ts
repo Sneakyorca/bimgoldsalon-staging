@@ -4,6 +4,7 @@ import { formatLongDate, formatTime } from "@/lib/booking";
 import { notifyBookingPaid, notifyOrderPaid } from "@/lib/email/notify";
 import { stripe } from "@/lib/stripe";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { splitName } from "@/lib/variants";
 
 const siteUrl = () =>
   (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(
@@ -39,14 +40,20 @@ export async function createOrderCheckout(
     quantity: number;
   }[];
   const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = items.map(
-    (i) => ({
-      quantity: i.quantity,
-      price_data: {
-        currency: "gbp",
-        unit_amount: pence(Number(i.price)),
-        product_data: { name: i.name.slice(0, 250) },
-      },
-    }),
+    (i) => {
+      const { title, options } = splitName(i.name);
+      return {
+        quantity: i.quantity,
+        price_data: {
+          currency: "gbp",
+          unit_amount: pence(Number(i.price)),
+          product_data: {
+            name: title.slice(0, 250),
+            ...(options ? { description: options.slice(0, 500) } : {}),
+          },
+        },
+      };
+    },
   );
   const fee = Number(order.delivery_fee);
   if (fee > 0)

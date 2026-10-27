@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { NO_IMAGE, type Product } from "@/lib/products";
+import { flagProduct, withOptionInfo } from "./variants";
 
 const COLUMNS =
   "id, name, description, category, price, sale_price, discount_percent, stock, image_url";
@@ -38,21 +39,29 @@ export const getProducts = cache(async (): Promise<Product[]> => {
     .select(COLUMNS)
     .order("id", { ascending: true })
     .limit(500);
+
   if (error) throw new Error("Could not load products.");
-  return (data as Row[]).map(toProduct);
+
+  const list = (data as Row[]).map(toProduct);
+  return withOptionInfo(list);
 });
 
 export const getProductById = cache(
   async (rawId: string): Promise<Product | null> => {
     if (!/^\d{1,12}$/.test(rawId)) return null;
+
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("products")
       .select(COLUMNS)
       .eq("id", Number(rawId))
       .maybeSingle();
+
     if (error) throw new Error("Could not load the product.");
-    return data ? toProduct(data as Row) : null;
+    if (!data) return null;
+
+    const product = toProduct(data as Row);
+    return flagProduct(product);
   },
 );
 
@@ -69,8 +78,11 @@ export async function getRelatedProducts(
     .neq("id", excludeId)
     .order("id", { ascending: true })
     .limit(limit);
+
   if (error) throw new Error("Could not load related products.");
-  return (data as Row[]).map(toProduct);
+
+  const list = (data as Row[]).map(toProduct);
+  return withOptionInfo(list);
 }
 
 export async function getProductsByIds(ids: number[]): Promise<Product[]> {

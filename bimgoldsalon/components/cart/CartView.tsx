@@ -3,20 +3,21 @@
 import { X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useCart, type CartItem } from "@/context/CartContext";
 import type { CSSProperties } from "react";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { useCart, type CartItem } from "@/context/CartContext";
 import { formatPrice } from "@/lib/format";
 import CheckoutSteps from "../site/CheckoutSteps";
+import ItemName from "../site/ItemName";
 import QtyStepper from "../site/QtyStepper";
 
 const Thumb = ({ item, className }: { item: CartItem; className: string }) => (
   <div
-    className={`grid place-items-center overflow-hidden rounded-xl border border-black bg-card ${className}`}
+    className={`grid shrink-0 place-items-center overflow-hidden rounded-xl border border-black bg-card ${className}`}
   >
     <Image
       src={item.image}
-      alt={item.name}
+      alt=""
       width={96}
       height={96}
       className="h-full w-auto object-contain p-2"
@@ -41,9 +42,9 @@ const RemoveButton = ({
   </button>
 );
 
-// column widths shrink on smaller desktops so nothing collides
+// product, quantity, subtotal (the unit price sits under the name)
 const rowCols =
-  "md:grid-cols-[minmax(0,1fr)_90px_110px_100px] lg:grid-cols-[minmax(0,1fr)_80px_104px_100px] xl:grid-cols-[minmax(0,1fr)_100px_110px_110px]";
+  "md:grid-cols-[minmax(0,1fr)_120px_96px] xl:grid-cols-[minmax(0,1fr)_132px_112px]";
 
 const CartView = () => {
   const { ready, cartItems, setQty, remove, subtotal } = useCart();
@@ -56,7 +57,7 @@ const CartView = () => {
         className="mx-auto w-full max-w-360 px-5 pb-16 pt-6 lg:px-12"
       >
         <Skeleton className="mx-auto my-6 h-10 w-64 md:mx-0 md:mt-12" />
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[minmax(0,1fr)_507px]">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[minmax(0,1fr)_420px]">
           <div className="space-y-4">
             {[0, 1, 2].map((i) => (
               <Skeleton key={i} className="h-24 w-full rounded-xl md:h-28" />
@@ -87,14 +88,13 @@ const CartView = () => {
           </Link>
         </div>
       ) : (
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start xl:grid-cols-[minmax(0,1fr)_507px] xl:gap-19">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start xl:grid-cols-[minmax(0,1fr)_420px] xl:gap-12">
           <div>
             {/* desktop header */}
             <div
-              className={`hidden gap-2 border-y border-black py-4 text-[16px] font-semibold md:grid xl:text-[18px] ${rowCols}`}
+              className={`hidden gap-3 border-y border-black py-4 text-[16px] font-semibold md:grid xl:text-[18px] ${rowCols}`}
             >
-              <span>Products</span>
-              <span>Price</span>
+              <span>Product</span>
               <span>Quantity</span>
               <span>Subtotal</span>
             </div>
@@ -108,23 +108,31 @@ const CartView = () => {
                 >
                   {/* mobile row */}
                   <div className="flex gap-4 border-t border-black py-5 md:hidden">
-                    <Thumb item={item} className="h-24 w-28 shrink-0" />
-                    <div className="flex min-w-0 flex-1 flex-col justify-between gap-2">
+                    <Link
+                      href={`/product/${item.id}`}
+                      tabIndex={-1}
+                      aria-hidden="true"
+                      className="shrink-0"
+                    >
+                      <Thumb item={item} className="h-24 w-28" />
+                    </Link>
+                    <div className="flex min-w-0 flex-1 flex-col justify-between gap-3">
                       <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <p className="text-[20px] font-semibold leading-tight">
-                            {item.name}
-                          </p>
-                          <p className="text-[14px]">
+                        <Link href={`/product/${item.id}`} className="min-w-0">
+                          <ItemName
+                            name={item.name}
+                            titleClassName="break-words text-[18px] font-semibold leading-tight"
+                          />
+                          <span className="mt-1 block text-[14px]">
                             {formatPrice(item.price)} each
-                          </p>
-                        </div>
+                          </span>
+                        </Link>
                         <RemoveButton
                           item={item}
                           onRemove={() => remove(item.id)}
                         />
                       </div>
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between gap-3">
                         <QtyStepper
                           qty={item.qty}
                           label={item.name}
@@ -139,22 +147,29 @@ const CartView = () => {
 
                   {/* desktop row */}
                   <div
-                    className={`hidden items-center gap-2 py-3 text-[16px] font-medium md:grid ${rowCols}`}
+                    className={`hidden items-center gap-3 py-3 text-[16px] font-medium md:grid ${rowCols}`}
                   >
                     <div className="flex min-w-0 items-center gap-3 xl:gap-4">
                       <RemoveButton
                         item={item}
                         onRemove={() => remove(item.id)}
                       />
-                      <Thumb
-                        item={item}
-                        className="size-20 shrink-0 xl:size-25"
-                      />
-                      <span className="min-w-0 break-words">{item.name}</span>
+                      <Link
+                        href={`/product/${item.id}`}
+                        className="group flex min-w-0 items-center gap-3 xl:gap-4"
+                      >
+                        <Thumb item={item} className="size-20 xl:size-24" />
+                        <span className="min-w-0">
+                          <ItemName
+                            name={item.name}
+                            titleClassName="break-words text-[16px] font-semibold leading-snug group-hover:underline"
+                          />
+                          <span className="mt-0.5 block text-[13px] font-normal text-gray-600">
+                            {formatPrice(item.price)} each
+                          </span>
+                        </span>
+                      </Link>
                     </div>
-                    <span className="whitespace-nowrap">
-                      {formatPrice(item.price)}
-                    </span>
                     <QtyStepper
                       qty={item.qty}
                       label={item.name}
@@ -176,13 +191,13 @@ const CartView = () => {
                 <dt>Subtotal</dt>
                 <dd>{formatPrice(subtotal)}</dd>
               </div>
-              <div className="flex justify-between border-b border-black/30 pb-4">
+              <div className="flex justify-between gap-3 border-b border-black/30 pb-4">
                 <dt>Shipping</dt>
                 <dd className="text-right text-[14px] md:text-[16px]">
                   Calculated at checkout
                 </dd>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-3">
                 <dt>Total (before delivery)</dt>
                 <dd className="text-[22px] font-semibold md:text-[24px]">
                   {formatPrice(subtotal)}

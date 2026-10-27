@@ -1,45 +1,9 @@
-import {
-  Car,
-  PoundSterling,
-  UserX,
-  Users,
-  type LucideIcon,
-} from "lucide-react";
-import type { ReactNode } from "react";
+import { Fragment } from "react";
 import { parking, welcome } from "@/lib/salon";
 import PolicyDialogButton from "./PolicyDialog";
 
-const ICONS: Record<string, LucideIcon> = {
-  guest: UserX,
-  team: Users,
-  deposit: PoundSterling,
-};
-
-function Item({
-  Icon,
-  title,
-  children,
-}: {
-  Icon: LucideIcon;
-  title: string;
-  children: ReactNode;
-}) {
-  return (
-    <li className="flex gap-3">
-      <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary text-white">
-        <Icon className="size-5" aria-hidden="true" />
-      </span>
-      <div className="min-w-0">
-        <p className="text-[15px] font-semibold leading-tight">{title}</p>
-        <p className="mt-1 text-[14px] leading-snug text-gray-700">
-          {children}
-        </p>
-      </div>
-    </li>
-  );
-}
-
 export default function BookingWelcome() {
+  const parts = welcome.paragraph.split("{parking}");
   return (
     <section
       aria-labelledby="booking-welcome"
@@ -51,30 +15,26 @@ export default function BookingWelcome() {
       >
         {welcome.title}
       </h2>
-      <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-gray-700">
-        {welcome.intro}
+
+      <p className="mt-3 max-w-3xl text-[15px] leading-relaxed text-gray-700 md:text-[16px]">
+        {parts.map((text, i) => (
+          <Fragment key={i}>
+            {text}
+            {i < parts.length - 1 && (
+              <a
+                href={parking.mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-primary underline underline-offset-2 hover:no-underline"
+              >
+                {parking.name}, {parking.postcode}
+              </a>
+            )}
+          </Fragment>
+        ))}
       </p>
 
-      <ul className="mt-5 grid gap-x-8 gap-y-5 sm:grid-cols-2">
-        {welcome.notes.map((n) => (
-          <Item key={n.title} Icon={ICONS[n.icon] ?? Users} title={n.title}>
-            {n.text}
-          </Item>
-        ))}
-        <Item Icon={Car} title="Parking">
-          Nearest car park: {parking.name}, {parking.postcode}. {parking.note}{" "}
-          <a
-            href={parking.mapsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-semibold text-primary underline-offset-2 hover:underline"
-          >
-            Open in Maps
-          </a>
-        </Item>
-      </ul>
-
-      <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-black/10 pt-4">
+      <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-black/10 pt-4">
         <PolicyDialogButton className="rounded-full border border-primary px-5 py-2 text-[14px] font-semibold text-primary hover:bg-card">
           Read the booking policy
         </PolicyDialogButton>

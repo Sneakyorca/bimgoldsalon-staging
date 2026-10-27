@@ -97,31 +97,7 @@ export default function TermsPage() {
       </section>
 
       <section>
-        <h2>6. Appointments</h2>
-        <ul>
-          <li>
-            A deposit is required to secure your appointment. The balance is
-            paid at the salon when your service is complete.
-          </li>
-          <li>
-            To cancel or reschedule, please give us at least{" "}
-            {BUSINESS.cancellationHours} hours&apos; notice.{" "}
-            {BUSINESS.depositPolicy}
-          </li>
-          <li>
-            Please arrive on time. If you are late, we may need to shorten or
-            rearrange your appointment so we do not affect other clients.
-          </li>
-          <li>
-            We may need to rearrange an appointment, for example due to illness.
-            If we do, we will offer you another time or a refund of your
-            deposit.
-          </li>
-        </ul>
-      </section>
-
-      <section>
-        <h2>7. Salon policy</h2>
+        <h2>6. Salon policy</h2>
         <p>
           The salon policy below is also shown when you book, and forms part of
           these terms.
@@ -139,7 +115,7 @@ export default function TermsPage() {
       </section>
 
       <section>
-        <h2>8. Our responsibility</h2>
+        <h2>7. Our responsibility</h2>
         <p>
           We take reasonable care to provide our products and services, but
           nothing in these terms limits any rights you have by law, including
@@ -150,7 +126,7 @@ export default function TermsPage() {
       </section>
 
       <section>
-        <h2>9. Your information</h2>
+        <h2>8. Your information</h2>
         <p>
           How we use your personal information is explained in our{" "}
           <a href="/privacy">Privacy Policy</a>.
@@ -158,7 +134,7 @@ export default function TermsPage() {
       </section>
 
       <section>
-        <h2>10. Changes and law</h2>
+        <h2>9. Changes and law</h2>
         <p>
           We may update these terms from time to time. The version on this page
           applies when you place an order or make a booking. These terms are
@@ -168,7 +144,7 @@ export default function TermsPage() {
       </section>
 
       <section>
-        <h2>11. Contact</h2>
+        <h2>10. Contact</h2>
         <p>
           Questions about these terms? Contact{" "}
           <a href={`mailto:${BUSINESS.email}`}>{BUSINESS.email}</a> or visit us

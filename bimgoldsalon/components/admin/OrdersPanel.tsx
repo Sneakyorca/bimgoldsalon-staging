@@ -6,6 +6,7 @@ import { deliveryOptions } from "@/lib/delivery-options";
 import type { OrderView } from "@/lib/auth/api";
 import { countryName } from "@/lib/countries";
 import { formatPrice } from "@/lib/format";
+import ItemName from "@/components/site/ItemName";
 
 const TONE: Record<string, string> = {
   pending: "bg-amber-100 text-amber-700",
@@ -187,7 +188,9 @@ export default function OrdersPanel({ orders }: { orders: OrderView[] }) {
                   key={`${it.productId}-${i}`}
                   className="border-b border-border/50"
                 >
-                  <td className="py-2">{it.name}</td>
+                  <td className="py-2">
+                    <ItemName name={it.name} titleClassName="font-medium" />
+                  </td>
                   <td className="py-2 text-right">{it.quantity}</td>
                   <td className="py-2 text-right">
                     {formatPrice(it.price * it.quantity)}

@@ -7,6 +7,7 @@ import { STOCK_BADGE, stockLevel, type AdminProduct } from "@/lib/products";
 import AdminDialog from "./AdminDialog";
 import ConfirmButton from "./ConfirmButton";
 import ProductForm from "./ProductForm";
+import ProductOptionsButton from "./ProductOptionsDialog";
 
 export type StockPreset = "all" | "in" | "low" | "out" | "restock";
 
@@ -134,8 +135,8 @@ export default function ProductsPanel({
                         <div className="size-10 rounded bg-[#ebebeb]" />
                       )}
                     </td>
-                    <td className="max-w-xs px-4 py-3 font-medium">
-                      <span className="line-clamp-2" title={p.name}>
+                    <td className="max-w-md px-4 py-3 font-medium">
+                      <span className="line-clamp-3" title={p.name}>
                         {p.name}
                       </span>
                     </td>
@@ -172,6 +173,10 @@ export default function ProductsPanel({
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-2">
+                        <ProductOptionsButton
+                          productId={p.id}
+                          productName={p.name}
+                        />
                         <button
                           type="button"
                           aria-label={`Edit ${p.name}`}

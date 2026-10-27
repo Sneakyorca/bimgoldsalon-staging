@@ -12,6 +12,8 @@ import {
 import { formatPrice } from "@/lib/format";
 import { LOW_STOCK_THRESHOLD, NO_IMAGE } from "@/lib/products";
 import { SITE_URL } from "@/lib/seo";
+import { redirect } from "next/navigation";
+import { getParentId } from "@/Data/variants";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -40,7 +42,15 @@ export const generateMetadata = async ({
 };
 
 const ProductDetailPage = async ({ params }: Props) => {
-  const product = await getProductById((await params).id);
+  const rawId = (await params).id;
+
+  if (/^\d{1,12}$/.test(rawId)) {
+    const productId = Number(rawId);
+    const parentId = await getParentId(productId);
+    if (parentId) redirect(`/product/${parentId}?v=${productId}`);
+  }
+
+  const product = await getProductById(rawId);
   if (!product) notFound();
 
   const [gallery, related] = await Promise.all([
@@ -104,6 +114,7 @@ const ProductDetailPage = async ({ params }: Props) => {
             {product.name}
           </h1>
           <p className="mt-3 flex flex-wrap items-baseline gap-3 text-[28px] font-bold">
+            {product.priceFrom && "from "}
             {formatPrice(product.price)}
             {product.discountPercent > 0 && (
               <>
