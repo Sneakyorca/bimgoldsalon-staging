@@ -45,6 +45,7 @@ const About = () => (
               alt={`Salon gallery ${i + 1}`}
               width={400}
               height={400}
+              loading="eager"
               className="aspect-square w-full rounded-lg object-cover"
             />
           ))}
