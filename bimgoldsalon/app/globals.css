@@ -416,3 +416,16 @@ html[data-scrolled="true"] .site-header {
     overflow: hidden;
   }
 }
+
+/* iPhone Safari: empty date/time inputs can collapse to a thin line */
+@layer base {
+  input[type="date"],
+  input[type="datetime-local"],
+  input[type="time"] {
+    min-height: 2.5rem;
+  }
+  input::-webkit-date-and-time-value {
+    min-height: 1.5em;
+    text-align: left;
+  }
+}
